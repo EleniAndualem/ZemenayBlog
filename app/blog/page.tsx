@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -24,7 +24,7 @@ import Header from "@/components/ui/Header"
 import Footer from "@/components/ui/Footer"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 import { BlogListSkeleton } from "@/components/ui/LoadingSkeleton"
-import { formatRelativeDate, getReadingTime, debounce } from "@/lib/utils"
+import { formatRelativeDate, getReadingTime } from "@/lib/utils"
 
 interface Post {
   id: string
@@ -108,9 +108,25 @@ function BlogContent() {
   const [showFilters, setShowFilters] = useState(false)
 
   // Debounced search function
-  const debouncedSearch = debounce((query: string) => {
+  const debouncedSearch = (query: string) => {
     updateURL({ search: query, page: "1" })
-  }, 500)
+  }
+
+  // Search suggestions
+  const searchSuggestions = [
+    "technology", "design", "programming", "business", "development",
+    "web", "mobile", "AI", "machine learning", "startup", "tutorial"
+  ]
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      debouncedSearch(searchQuery)
+    }
+    if (e.key === 'Escape') {
+      setSearchQuery("")
+    }
+  }
 
   const updateURL = (params: Record<string, string>) => {
     const newParams = new URLSearchParams(searchParams.toString())
@@ -144,7 +160,7 @@ function BlogContent() {
       if (selectedTags.length > 0) params.set("tags", selectedTags.join(","))
       if (sortBy) params.set("sortBy", sortBy)
 
-      const response = await fetch(`/api/posts?${params}`)
+      const response = await fetch(`/api/posts?${params}`, { cache: 'no-store' })
 
       if (!response.ok) {
         throw new Error("Failed to fetch posts")
@@ -167,42 +183,70 @@ function BlogContent() {
     }
   }
 
+  // Derived client-side filtered posts for instant UX
+  const filteredPosts = useMemo(() => {
+    const q = (searchQuery || "").trim().toLowerCase()
+
+    return posts.filter((post) => {
+      // Text search across fields
+      const matchesText = q
+        ? (
+            post.title.toLowerCase().includes(q) ||
+            (post.excerpt || "").toLowerCase().includes(q) ||
+            (post.content || "").toLowerCase().includes(q) ||
+            post.author.fullName.toLowerCase().includes(q)
+          )
+        : true
+
+      const matchesCategory = selectedCategory
+        ? post.category?.slug === selectedCategory
+        : true
+
+      const matchesTags = selectedTags.length > 0
+        ? post.tags.some((t) => selectedTags.includes(t.tag.slug))
+        : true
+
+      return matchesText && matchesCategory && matchesTags
+    })
+  }, [posts, searchQuery, selectedCategory, selectedTags])
+
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/categories")
+      const response = await fetch("/api/categories", { next: { revalidate: 0 } })
       if (response.ok) {
         const data = await response.json()
-        setCategories(data)
+        setCategories(data.categories || [])
       }
     } catch (err) {
       console.error("Failed to fetch categories:", err)
+      setCategories([])
     }
   }
 
   const fetchTags = async () => {
     try {
-      const response = await fetch("/api/tags")
+      const response = await fetch("/api/tags", { next: { revalidate: 0 } })
       if (response.ok) {
         const data = await response.json()
-        setTags(data)
+        setTags(data || [])
       }
     } catch (err) {
       console.error("Failed to fetch tags:", err)
+      setTags([])
     }
   }
 
   // Effects
   useEffect(() => {
-    fetchPosts()
+    // fetch categories/tags only once on mount
     fetchCategories()
     fetchTags()
-  }, [selectedCategory, selectedTags, sortBy])
+  }, [])
 
   useEffect(() => {
-    if (searchQuery !== (searchParams.get("search") || "")) {
-      debouncedSearch(searchQuery)
-    }
-  }, [searchQuery])
+    // Refetch posts when filters/sort change
+    fetchPosts(1, false)
+  }, [selectedCategory, selectedTags, sortBy])
 
   // Event handlers
   const handleCategoryChange = (categorySlug: string) => {
@@ -284,15 +328,42 @@ function BlogContent() {
         {/* Search and Filters */}
         <div className="mb-8">
           {/* Search Bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-            />
+          <div className="mb-6">
+            <div className="relative flex">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search articles by title, content, or author..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                className="flex-1 pl-10 pr-4 py-3 border border-border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+              />
+              <button
+                onClick={() => { updateURL({ search: searchQuery, page: "1" }); fetchPosts(1, false); }}
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-r-lg hover:bg-primary/90 transition-colors border border-l-0 border-border"
+              >
+                Search
+              </button>
+            </div>
+            
+            {/* Search Suggestions */}
+            {!searchQuery && !loading && posts.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm text-muted-foreground mb-2">Popular searches:</p>
+                <div className="flex flex-wrap gap-2">
+                  {searchSuggestions.slice(0, 6).map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => { setSearchQuery(suggestion); updateURL({ search: suggestion, page: "1" }); fetchPosts(1, false); }}
+                      className="px-3 py-1 text-sm bg-accent hover:bg-accent/80 text-accent-foreground rounded-full transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Filter Controls */}
@@ -349,7 +420,6 @@ function BlogContent() {
                 <option value="oldest">Oldest First</option>
                 <option value="popular">Most Popular</option>
                 <option value="liked">Most Liked</option>
-                <option value="commented">Most Commented</option>
               </select>
             </div>
           </div>
@@ -363,7 +433,7 @@ function BlogContent() {
                   <div>
                     <h3 className="font-semibold text-foreground mb-3">Categories</h3>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {categories.map((category) => (
+                      {Array.isArray(categories) && categories.map((category) => (
                         <button
                           key={category.id}
                           onClick={() => handleCategoryChange(category.slug)}
@@ -380,7 +450,7 @@ function BlogContent() {
                             />
                             <span>{category.name}</span>
                           </div>
-                          <span className="text-sm opacity-70">{category._count.posts}</span>
+                          <span className="text-sm opacity-70">{category._count?.posts || 0}</span>
                         </button>
                       ))}
                     </div>
@@ -390,7 +460,7 @@ function BlogContent() {
                   <div>
                     <h3 className="font-semibold text-foreground mb-3">Tags</h3>
                     <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-                      {tags.map((tag) => (
+                      {Array.isArray(tags) && tags.map((tag) => (
                         <button
                           key={tag.id}
                           onClick={() => handleTagToggle(tag.slug)}
@@ -400,7 +470,7 @@ function BlogContent() {
                               : "bg-accent hover:bg-accent/80"
                           }`}
                         >
-                          #{tag.name} ({tag._count.posts})
+                          #{tag.name} ({tag._count?.posts || 0})
                         </button>
                       ))}
                     </div>
@@ -423,7 +493,7 @@ function BlogContent() {
               )}
               {selectedCategory && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-                  Category: {categories.find((c) => c.slug === selectedCategory)?.name}
+                  Category: {Array.isArray(categories) && categories.find((c) => c.slug === selectedCategory)?.name}
                   <button onClick={() => handleCategoryChange(selectedCategory)} className="hover:text-primary/80">
                     <X className="w-3 h-3" />
                   </button>
@@ -434,7 +504,7 @@ function BlogContent() {
                   key={tagSlug}
                   className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
                 >
-                  Tag: {tags.find((t) => t.slug === tagSlug)?.name}
+                  Tag: {Array.isArray(tags) && tags.find((t) => t.slug === tagSlug)?.name}
                   <button onClick={() => handleTagToggle(tagSlug)} className="hover:text-primary/80">
                     <X className="w-3 h-3" />
                   </button>
@@ -446,23 +516,55 @@ function BlogContent() {
           {/* Results Info */}
           {pagination && (
             <div className="text-sm text-muted-foreground mb-6">
-              {pagination.totalCount > 0 ? (
+              {filteredPosts.length > 0 ? (
                 <>
-                  Showing {(pagination.currentPage - 1) * pagination.limit + 1}-
-                  {Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)} of{" "}
-                  {pagination.totalCount} results
+                  Showing {Math.min((pagination.currentPage - 1) * pagination.limit + 1, (pagination.currentPage - 1) * pagination.limit + filteredPosts.length)}-
+                  {Math.min(pagination.currentPage * pagination.limit, (pagination.currentPage - 1) * pagination.limit + filteredPosts.length)} of {pagination.totalCount} results
+                  {searchQuery && (
+                    <span className="ml-2">
+                      for "<span className="font-medium text-foreground">{searchQuery}</span>"
+                    </span>
+                  )}
                 </>
               ) : (
-                "No results found"
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No results found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery ? (
+                      <>
+                        No articles found for "<span className="font-medium">{searchQuery}</span>"
+                      </>
+                    ) : (
+                      "No articles match your current filters"
+                    )}
+                  </p>
+                  {searchQuery && (
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <p>Search tips:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Try different keywords or synonyms</li>
+                        <li>Check your spelling</li>
+                        <li>Use broader search terms</li>
+                        <li>Try removing some filters</li>
+                      </ul>
+                    </div>
+                  )}
+                  {hasActiveFilters && (
+                    <Button onClick={clearFilters} className="mt-4">
+                      Clear All Filters
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
           )}
         </div>
 
         {/* Posts Grid/List */}
-        {loading && posts.length === 0 ? (
+        {loading && filteredPosts.length === 0 ? (
           <BlogListSkeleton />
-        ) : posts.length === 0 ? (
+        ) : filteredPosts.length === 0 ? (
           <Card className="max-w-md mx-auto">
             <CardContent className="p-8 text-center">
               <div className="text-6xl mb-4">📝</div>
@@ -480,7 +582,7 @@ function BlogContent() {
                 viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
               }`}
             >
-              {posts.map((post, index) => (
+              {filteredPosts.map((post, index) => (
                 <ErrorBoundary key={post.id}>
                   <Link href={`/blog/${post.slug}`} className="block group">
                   <Card

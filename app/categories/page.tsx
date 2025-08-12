@@ -82,10 +82,10 @@ export default function CategoriesPage() {
       <Header />
       <main className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Explore Categories
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Discover content organized by topics that interest you most
           </p>
         </div>
@@ -99,51 +99,29 @@ export default function CategoriesPage() {
                 href={`/blog?category=${category.slug}`}
                 className="group block"
               >
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all duration-200 group-hover:scale-105">
+                <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                   <div className="flex items-center justify-between mb-4">
-                    <div 
-                      className="p-3 rounded-lg"
-                      style={{ backgroundColor: `${category.color}20` }}
+                    <div
+                      className="w-12 h-12 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: category.color || "#3B82F6" }}
                     >
-                      <Icon 
-                        className="h-6 w-6" 
-                        style={{ color: category.color }}
-                      />
+                      <Icon className="w-6 h-6 text-white" />
                     </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded-full">
                       {category._count.posts} posts
                     </span>
                   </div>
-                  
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
-                  
-                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-sm line-clamp-2">
                     {category.description}
                   </p>
-                  
-                  <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400 text-sm font-medium group-hover:underline">
-                    Explore posts
-                    <svg className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
                 </div>
               </Link>
             )
           })}
         </div>
-
-        {categories.length === 0 && (
-          <div className="text-center py-12">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No categories found</h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              Categories will appear here once they are created.
-            </p>
-          </div>
-        )}
       </main>
       <Footer />
     </div>
