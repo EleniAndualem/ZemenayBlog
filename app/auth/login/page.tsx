@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   const { login } = useAuth()
   const router = useRouter()
@@ -22,11 +23,14 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError("")
+    setSuccess("")
 
     try {
       const result = await login(email, password)
-      if (result.success) {
-        router.push("/admin")
+      if (result.success && result.user) {
+        setSuccess(`Welcome back, ${result.user.fullName}!`)
+        const destination = ["admin", "superadmin"].includes(result.user.role.name) ? "/admin" : "/"
+        setTimeout(() => router.push(destination), 800)
       } else {
         setError(result.error || "Invalid email or password")
       }
@@ -52,6 +56,12 @@ export default function LoginPage() {
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <p className="text-green-700 dark:text-green-400 text-sm">{success}</p>
             </div>
           )}
 

@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   const router = useRouter()
 
@@ -23,6 +24,7 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     setError("")
+    setSuccess("")
 
     if (password !== confirmPassword) {
       setError("Passwords do not match")
@@ -37,10 +39,15 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, fullName, password }),
       })
 
+      const data = await response.json()
+
       if (response.ok) {
-        router.push("/")
+        setSuccess(`Welcome, ${fullName}! Your account has been created successfully.`)
+        // Redirect to sign in after a brief delay
+        setTimeout(() => {
+          router.push("/auth/login")
+        }, 1200)
       } else {
-        const data = await response.json()
         setError(data.error || "Registration failed")
       }
     } catch (err) {
@@ -60,16 +67,17 @@ export default function RegisterPage() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create Account</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">Join our community today</p>
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <p className="text-blue-600 dark:text-blue-400 text-sm">
-                <strong>Note:</strong> This registration is for regular users only. Admin and Superadmin accounts must be created by existing superadmins through the admin dashboard.
-              </p>
-            </div>
           </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <p className="text-green-700 dark:text-green-400 text-sm">{success}</p>
             </div>
           )}
 
