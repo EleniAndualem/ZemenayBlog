@@ -2,6 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getAuthUser } from "@/lib/auth"
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getAuthUser(request)
@@ -54,6 +57,7 @@ export async function GET(request: NextRequest) {
       fullName: admin.fullName,
       email: admin.email,
       role: admin.role,
+      profileImage: admin.profileImage ? Buffer.from(admin.profileImage as unknown as Uint8Array).toString('base64') : null,
       createdAt: admin.createdAt.toISOString(),
       updatedAt: admin.updatedAt.toISOString(),
       createdBy: admin.createdBy,

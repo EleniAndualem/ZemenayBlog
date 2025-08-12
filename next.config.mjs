@@ -81,33 +81,8 @@ const nextConfig = {
     ]
   },
 
-  // Webpack optimization
-  webpack: (config, { dev, isServer }) => {
-    // Production optimizations
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              enforce: true,
-            },
-          },
-        },
-      }
-    }
-
-    return config
-  },
+  // Webpack optimization - keep minimal customization to avoid incompatibilities
+  webpack: (config) => config,
 
   // Output configuration
   output: 'standalone',
@@ -118,8 +93,7 @@ const nextConfig = {
   // React strict mode
   reactStrictMode: true,
 
-  // SWC minification
-  swcMinify: true,
+  // SWC minification is the default in Next 15; the explicit option was removed
 
   // ESLint configuration
   eslint: {

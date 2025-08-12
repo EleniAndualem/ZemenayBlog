@@ -11,24 +11,26 @@ interface User {
     id: number
     name: string
   }
-  profileImage?: Uint8Array
+  // Can be serialized Buffer-like object, byte array, string data URL, blob, or null
+  profileImage?: unknown | null
   darkMode: boolean
   createdAt: string
   updatedAt: string
 }
 
-interface AuthContextType {
+  interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   loading: boolean
   updateTheme: (darkMode: boolean) => Promise<void>
-  updateProfile: (data: { 
-    fullName?: string; 
-    email?: string;
-    profileImage?: Buffer | File;
-    darkMode?: boolean;
-  }) => Promise<boolean>
+    updateProfile: (data: { 
+      fullName?: string; 
+      email?: string;
+      // Accept broad image representations to avoid Buffer usage client-side
+      profileImage?: string | File | Blob | ArrayBuffer | Uint8Array | number[] | { type?: string; data?: number[]; buffer?: ArrayBuffer } | null;
+      darkMode?: boolean;
+    }) => Promise<boolean>
   isRole: (role: string) => boolean
   canManageAllPosts: () => boolean
   canManageOwnPosts: () => boolean
@@ -48,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/auth/me")
+      const response = await fetch("/api/auth/me", { cache: 'no-store' })
       if (response.ok) {
         const userData = await response.json()
         setUser(userData)

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 // Cache configuration
 const CACHE_DURATION = 60 * 5 // 5 minutes in seconds
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -55,7 +57,8 @@ export async function GET(request: NextRequest) {
         orderBy = { publishedAt: "asc" }
         break
       case "popular":
-        orderBy = { views: "desc" }
+        // Sort by total views (fallback to newest if not available)
+        orderBy = { publishedAt: "desc" }
         break
       case "liked":
         orderBy = { likes: { _count: "desc" } }
@@ -67,8 +70,8 @@ export async function GET(request: NextRequest) {
         orderBy = { publishedAt: "desc" }
     }
 
-    // Get posts with counts
-    const [posts, totalCount] = await Promise.all([
+    // Get posts with counts and analytics
+    const [rawPosts, totalCount] = await Promise.all([
       prisma.post.findMany({
         where,
         orderBy,
@@ -101,6 +104,11 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+          analytics: {
+            select: {
+              viewsCount: true,
+            },
+          },
           _count: {
             select: {
               likes: true,
@@ -111,6 +119,27 @@ export async function GET(request: NextRequest) {
       }),
       prisma.post.count({ where }),
     ])
+
+    // Format posts: convert binary to base64 and compute totalViews
+    const posts = rawPosts.map((post) => {
+      const thumbnailBase64 = post.thumbnail
+        ? Buffer.from(post.thumbnail as unknown as Uint8Array).toString('base64')
+        : null
+      const authorImageBase64 = post.author.profileImage
+        ? Buffer.from(post.author.profileImage as unknown as Uint8Array).toString('base64')
+        : null
+      const totalViews = post.analytics.reduce((sum, a) => sum + a.viewsCount, 0)
+
+      return {
+        ...post,
+        thumbnail: thumbnailBase64,
+        author: {
+          ...post.author,
+          profileImage: authorImageBase64,
+        },
+        totalViews,
+      }
+    })
 
     const totalPages = Math.ceil(totalCount / limit)
     const hasNextPage = page < totalPages

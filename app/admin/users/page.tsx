@@ -12,6 +12,7 @@ interface UserInterface {
     id: number
     name: string
   }
+  profileImage?: string | null
   darkMode: boolean
   createdAt: string
   updatedAt: string
@@ -231,11 +232,19 @@ export default function UsersManagementPage() {
                   <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full gradient-bg flex items-center justify-center">
-                          <span className="text-white font-medium text-sm">
-                            {user.fullName.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
+                        {typeof (user as any).profileImage === 'string' && (user as any).profileImage ? (
+                          <img
+                            src={(user as any).profileImage.startsWith('data:') ? (user as any).profileImage : `data:image/jpeg;base64,${(user as any).profileImage}`}
+                            alt={user.fullName}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full gradient-bg flex items-center justify-center">
+                            <span className="text-white font-medium text-sm">
+                              {user.fullName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">{user.fullName}</div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>

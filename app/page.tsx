@@ -1,10 +1,73 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, TrendingUp, Users, BookOpen, Star } from "lucide-react"
+import { ArrowRight, TrendingUp, Users, BookOpen, Star, Eye, Heart, MessageSquare, Clock } from "lucide-react"
 import Header from "@/components/ui/Header"
 import Footer from "@/components/ui/Footer"
 
+interface Post {
+  id: string
+  title: string
+  slug: string
+  excerpt: string
+  content: string
+  thumbnail?: Buffer
+  publishedAt: string
+  author: {
+    id: string
+    fullName: string
+    profileImage?: Buffer
+  }
+  category?: {
+    id: number
+    name: string
+    slug: string
+    color: string
+  }
+  tags: Array<{
+    tag: {
+      id: number
+      name: string
+      slug: string
+    }
+  }>
+  _count: {
+    likes: number
+    comments: number
+  }
+  totalViews: number
+}
+
 export default function HomePage() {
+  const [featuredPosts, setFeaturedPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchFeaturedPosts()
+  }, [])
+
+  const fetchFeaturedPosts = async () => {
+    try {
+      const response = await fetch('/api/posts?limit=3&sortBy=newest')
+      if (response.ok) {
+        const data = await response.json()
+        setFeaturedPosts(data.posts)
+      }
+    } catch (error) {
+      console.error('Failed to fetch recent posts:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getReadingTime = (content: string) => {
+    const wordsPerMinute = 200
+    const words = content.split(' ').length
+    return Math.ceil(words / wordsPerMinute)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -43,140 +106,132 @@ export default function HomePage() {
       {/* Stats Section */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full gradient-bg flex items-center justify-center">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-3xl font-bold mb-2">500+</h3>
-              <p className="text-muted-foreground">Articles Published</p>
-            </div>
-            <div className="text-center">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full gradient-bg flex items-center justify-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full gradient-bg">
                 <Users className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold mb-2">10K+</h3>
+              <h3 className="text-2xl font-bold mb-2">10K+</h3>
               <p className="text-muted-foreground">Active Readers</p>
             </div>
             <div className="text-center">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full gradient-bg flex items-center justify-center">
-                <TrendingUp className="h-8 w-8 text-white" />
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full gradient-bg">
+                <BookOpen className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold mb-2">1M+</h3>
-              <p className="text-muted-foreground">Monthly Views</p>
+              <h3 className="text-2xl font-bold mb-2">500+</h3>
+              <p className="text-muted-foreground">Articles Published</p>
             </div>
             <div className="text-center">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full gradient-bg flex items-center justify-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full gradient-bg">
+                <TrendingUp className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">95%</h3>
+              <p className="text-muted-foreground">Satisfaction Rate</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full gradient-bg">
                 <Star className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold mb-2">4.9</h3>
-              <p className="text-muted-foreground">Average Rating</p>
+              <h3 className="text-2xl font-bold mb-2">4.9/5</h3>
+              <p className="text-muted-foreground">User Rating</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Posts */}
+      {/* Recent Articles Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Articles</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Recent Articles</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover our most popular and trending articles from the community
+              Check out our latest articles and stories from the community
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Featured Post 1 */}
-            <article className="card-gradient rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src="/modern-web-development.png"
-                  alt="Featured post"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded-full">Technology</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">
-                  The Future of Web Development
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  Exploring the latest trends and technologies shaping the future of web development...
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full gradient-bg"></div>
-                    <span className="text-sm font-medium">John Doe</span>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="card-gradient rounded-xl overflow-hidden shadow-lg animate-pulse">
+                  <div className="h-48 bg-gray-300 dark:bg-gray-700"></div>
+                  <div className="p-6">
+                    <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
                   </div>
-                  <span className="text-sm text-muted-foreground">5 min read</span>
                 </div>
-              </div>
-            </article>
-
-            {/* Featured Post 2 */}
-            <article className="card-gradient rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src="/ui-ux-design-trends.png"
-                  alt="Featured post"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 text-xs font-medium bg-purple-600 text-white rounded-full">Design</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">
-                  UI/UX Design Trends 2024
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  Discover the latest design trends that are shaping user experiences in 2024...
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full gradient-bg"></div>
-                    <span className="text-sm font-medium">Jane Smith</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">7 min read</span>
-                </div>
-              </div>
-            </article>
-
-            {/* Featured Post 3 */}
-            <article className="card-gradient rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src="/startup-business-growth.png"
-                  alt="Featured post"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 text-xs font-medium bg-green-600 text-white rounded-full">Business</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">
-                  Building a Successful Startup
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  Essential strategies and insights for building and scaling a successful startup...
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full gradient-bg"></div>
-                    <span className="text-sm font-medium">Mike Johnson</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">10 min read</span>
-                </div>
-              </div>
-            </article>
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredPosts.map((post) => (
+                <Link key={post.id} href={`/blog/${post.slug}`}>
+                  <article className="card-gradient rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group cursor-pointer">
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={
+                          post.thumbnail
+                            ? `data:image/jpeg;base64,${post.thumbnail}`
+                            : `/placeholder.svg?height=250&width=400&query=${encodeURIComponent(post.title)}`
+                        }
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {post.category && (
+                        <div className="absolute top-4 left-4">
+                          <span
+                            className="px-3 py-1 text-xs font-medium text-white rounded-full"
+                            style={{ backgroundColor: post.category.color || "#3B82F6" }}
+                          >
+                            {post.category.name}
+                          </span>
+                        </div>
+                      )}
+                      <div className="absolute top-4 right-4">
+                        <div className="flex items-center gap-1 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
+                          <Clock className="w-3 h-3" />
+                          <span>{getReadingTime(post.content)} min</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-muted-foreground mb-4 line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="h-8 w-8 rounded-full gradient-bg flex items-center justify-center">
+                            <span className="text-white text-sm font-medium">
+                              {post.author.fullName.charAt(0)}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium">{post.author.fullName}</span>
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+                          <div className="flex items-center space-x-1">
+                            <Eye className="w-4 h-4" />
+                            <span>{post.totalViews}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Heart className="w-4 h-4" />
+                            <span>{post._count.likes}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MessageSquare className="w-4 h-4" />
+                            <span>{post._count.comments}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <Link
@@ -191,19 +246,23 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16 gradient-bg">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center text-white">
+          <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Updated</h2>
-            <p className="text-xl mb-8 opacity-90">
-              Get the latest articles and insights delivered directly to your inbox
+            <p className="text-xl text-muted-foreground mb-8">
+              Get the latest articles and insights delivered to your inbox
             </p>
-            <Link
-              href="/auth/register"
-              className="inline-flex items-center px-8 py-3 text-lg font-medium bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              Sign Up for Updates
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+              />
+              <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                Subscribe
+              </button>
+            </div>
           </div>
         </div>
       </section>

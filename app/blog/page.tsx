@@ -482,14 +482,15 @@ function BlogContent() {
             >
               {posts.map((post, index) => (
                 <ErrorBoundary key={post.id}>
+                  <Link href={`/blog/${post.slug}`} className="block group">
                   <Card
-                    className={`group hover:shadow-lg transition-all duration-300 ${viewMode === "list" ? "flex" : ""}`}
+                    className={`hover:shadow-lg transition-all duration-300 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
                   >
                     <div className={`relative overflow-hidden ${viewMode === "list" ? "w-1/3" : "aspect-video"}`}>
                       <Image
                         src={
                           post.thumbnail
-                            ? `data:image/jpeg;base64,${Buffer.from(post.thumbnail).toString("base64")}`
+                            ? `data:image/jpeg;base64,${post.thumbnail}`
                             : `/placeholder.svg?height=250&width=400&query=${encodeURIComponent(post.title)}`
                         }
                         alt={post.title}
@@ -518,11 +519,9 @@ function BlogContent() {
                     </div>
 
                     <CardContent className={`p-6 ${viewMode === "list" ? "flex-1" : ""}`}>
-                      <Link href={`/blog/${post.slug}`}>
-                        <h2 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                          {post.title}
-                        </h2>
-                      </Link>
+                      <h2 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                        {post.title}
+                      </h2>
 
                       <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
 
@@ -551,9 +550,7 @@ function BlogContent() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-foreground">{post.author.fullName}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatRelativeDate(new Date(post.publishedAt))}
-                            </p>
+                            <p className="text-xs text-muted-foreground">{formatRelativeDate(post.publishedAt)}</p>
                           </div>
                         </div>
 
@@ -574,6 +571,7 @@ function BlogContent() {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 </ErrorBoundary>
               ))}
             </div>

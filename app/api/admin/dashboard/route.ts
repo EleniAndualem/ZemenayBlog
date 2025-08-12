@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
 
     // Calculate date range
     const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
     let startDate: Date
     let previousStartDate: Date
 
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get current period stats
-    const [currentStats, previousStats, recentPosts] = await Promise.all([
+    const [currentStats, previousStats, recentPosts, todayStats] = await Promise.all([
       // Current period
       Promise.all([
         prisma.post.count({
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
             createdAt: { gte: startDate }
           }
         }),
-        // Views (from PostAnalytic)
+        // Get real views from PostAnalytic
         prisma.postAnalytic.aggregate({
           where: {
             date: { gte: startDate }
@@ -90,7 +92,7 @@ export async function GET(request: NextRequest) {
             createdAt: { gte: previousStartDate, lt: startDate }
           }
         }),
-        // Views (from PostAnalytic)
+        // Get real views from PostAnalytic for previous period
         prisma.postAnalytic.aggregate({
           where: {
             date: { gte: previousStartDate, lt: startDate }
@@ -100,7 +102,7 @@ export async function GET(request: NextRequest) {
           }
         })
       ]),
-      // Recent posts
+      // Recent posts with real view data
       prisma.post.findMany({
         where: {
           status: "published"
@@ -111,17 +113,51 @@ export async function GET(request: NextRequest) {
               likes: true,
               comments: true
             }
+          },
+          analytics: {
+            select: {
+              viewsCount: true
+            }
           }
         },
         orderBy: {
           publishedAt: "desc"
         },
         take: 5
-      })
+      }),
+      // Today's specific stats
+      Promise.all([
+        prisma.like.count({
+          where: {
+            createdAt: { gte: today }
+          }
+        }),
+        prisma.comment.count({
+          where: {
+            createdAt: { gte: today }
+          }
+        }),
+        prisma.post.count({
+          where: {
+            publishedAt: { gte: today },
+            status: "published"
+          }
+        }),
+        // Get real views for today
+        prisma.postAnalytic.aggregate({
+          where: {
+            date: { gte: today }
+          },
+          _sum: {
+            viewsCount: true
+          }
+        })
+      ])
     ])
 
     const [currentPosts, currentLikes, currentComments, currentUsers, currentViews] = currentStats
     const [previousPosts, previousLikes, previousComments, previousUsers, previousViews] = previousStats
+    const [likesToday, commentsToday, postsToday, viewsToday] = todayStats
 
     // Calculate percentage changes
     const calculateChange = (current: number, previous: number) => {
@@ -133,20 +169,44 @@ export async function GET(request: NextRequest) {
     const likesChange = calculateChange(currentLikes, previousLikes)
     const commentsChange = calculateChange(currentComments, previousComments)
     const usersChange = calculateChange(currentUsers, previousUsers)
-    const viewsChange = calculateChange(
-      currentViews._sum.viewsCount || 0,
-      previousViews._sum.viewsCount || 0
-    )
+    const viewsChange = calculateChange(currentViews._sum.viewsCount || 0, previousViews._sum.viewsCount || 0)
 
-    // Get daily stats for trends
-    const dailyStats = await prisma.postAnalytic.findMany({
-      where: {
-        date: { gte: startDate }
-      },
-      orderBy: {
-        date: 'asc'
-      }
-    })
+    // Generate daily trends data for the last 7 days using real data
+    const trendsData = []
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000)
+      const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000)
+      
+      const [dayLikes, dayComments, dayViews] = await Promise.all([
+        prisma.like.count({
+          where: {
+            createdAt: { gte: dayStart, lt: dayEnd }
+          }
+        }),
+        prisma.comment.count({
+          where: {
+            createdAt: { gte: dayStart, lt: dayEnd }
+          }
+        }),
+        // Get real views for this day
+        prisma.postAnalytic.aggregate({
+          where: {
+            date: { gte: dayStart, lt: dayEnd }
+          },
+          _sum: {
+            viewsCount: true
+          }
+        })
+      ])
+      
+      trendsData.push({
+        date: date.toISOString().split('T')[0],
+        views: dayViews._sum.viewsCount || 0,
+        likes: dayLikes,
+        comments: dayComments
+      })
+    }
 
     return NextResponse.json({
       totalPosts: currentPosts,
@@ -158,21 +218,16 @@ export async function GET(request: NextRequest) {
         id: post.id,
         title: post.title,
         status: post.status,
-        views: 0, // Will be calculated from analytics
+        views: post.analytics.reduce((sum, analytic) => sum + analytic.viewsCount, 0),
         likes: post._count.likes,
         comments: post._count.comments,
         createdAt: post.createdAt.toISOString()
       })),
       analytics: {
-        viewsToday: dailyStats[dailyStats.length - 1]?.viewsCount || 0,
-        likesToday: dailyStats[dailyStats.length - 1]?.likesCount || 0,
-        commentsToday: dailyStats[dailyStats.length - 1]?.commentsCount || 0,
-        trendsData: dailyStats.map(stat => ({
-          date: stat.date.toISOString().split('T')[0],
-          views: stat.viewsCount,
-          likes: stat.likesCount,
-          comments: stat.commentsCount
-        }))
+        viewsToday: viewsToday._sum.viewsCount || 0,
+        likesToday: likesToday,
+        commentsToday: commentsToday,
+        trendsData: trendsData
       },
       changes: {
         posts: postsChange,

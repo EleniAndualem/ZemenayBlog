@@ -80,6 +80,7 @@ export default function BlogPostPage() {
     if (params.slug) {
       fetchPost()
       fetchComments()
+      trackView()
     }
   }, [params.slug])
 
@@ -97,6 +98,21 @@ export default function BlogPostPage() {
       router.push('/blog')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const trackView = async () => {
+    try {
+      // Track view when post is loaded
+      await fetch(`/api/posts/${params.slug}/view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    } catch (error) {
+      // Silently fail - view tracking shouldn't break the page
+      console.error('Failed to track view:', error)
     }
   }
 

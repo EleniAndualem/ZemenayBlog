@@ -114,9 +114,17 @@ export default function AdminLayout({
           {/* User info */}
           <div className="p-4 border-t border-white/10">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <span className="text-white font-medium text-sm">{user.fullName.charAt(0).toUpperCase()}</span>
-              </div>
+              {typeof user.profileImage === 'string' && user.profileImage ? (
+                <img
+                  src={user.profileImage.startsWith('data:') ? (user.profileImage as string) : `data:image/jpeg;base64,${user.profileImage}`}
+                  alt={user.fullName}
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <span className="text-white font-medium text-sm">{user.fullName.charAt(0).toUpperCase()}</span>
+                </div>
+              )}
               <div>
                 <p className="text-white font-medium text-sm">{user.fullName}</p>
                 <p className="text-white/60 text-xs capitalize">{user.role.name}</p>

@@ -14,6 +14,7 @@ interface Admin {
     id: number
     name: string
   }
+  profileImage?: string | null
   createdAt: string
   updatedAt: string
   createdBy?: {
@@ -346,11 +347,19 @@ export default function AdminManagementPage() {
                   <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full gradient-bg flex items-center justify-center">
-                          <span className="text-white font-medium text-sm">
-                            {admin.fullName.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
+                        {typeof (admin as any).profileImage === 'string' && (admin as any).profileImage ? (
+                          <img
+                            src={(admin as any).profileImage.startsWith('data:') ? (admin as any).profileImage : `data:image/jpeg;base64,${(admin as any).profileImage}`}
+                            alt={admin.fullName}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full gradient-bg flex items-center justify-center">
+                            <span className="text-white font-medium text-sm">
+                              {admin.fullName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">{admin.fullName}</div>
                           <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">

@@ -4,11 +4,11 @@ import { getAuthUser } from "@/lib/auth"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getAuthUser(request)
-    const slug = params.slug
+    const { slug } = await params
 
     const post = await prisma.post.findUnique({
       where: { slug },
@@ -71,7 +71,7 @@ export async function GET(
       isLiked = !!like
     }
 
-    // Calculate total views
+    // Calculate total views from real analytics data
     const totalViews = post.analytics.reduce((sum, analytic) => sum + analytic.viewsCount, 0)
 
     return NextResponse.json({

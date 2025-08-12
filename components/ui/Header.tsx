@@ -17,6 +17,9 @@ export default function Header() {
     setMounted(true)
   }, [])
 
+  // Avoid hydration mismatch by rendering nothing until mounted
+  if (!mounted) return null
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -62,9 +65,18 @@ export default function Header() {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
                 >
-                  <div className="h-8 w-8 rounded-full gradient-bg flex items-center justify-center">
-                    <User className="h-4 w-4 text-white" />
-                  </div>
+                  {typeof user.profileImage === 'string' && user.profileImage
+                    ? (
+                      <img
+                        src={user.profileImage.startsWith('data:') ? (user.profileImage as string) : `data:image/jpeg;base64,${user.profileImage}`}
+                        alt={user.fullName}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full gradient-bg flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                    )}
                   <span className="hidden sm:block text-sm font-medium">{user.fullName}</span>
                 </button>
 

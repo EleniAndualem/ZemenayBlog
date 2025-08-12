@@ -15,21 +15,26 @@ export async function GET(request: NextRequest) {
 
     // Calculate date range
     const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     let startDate: Date
     let previousStartDate: Date
+    let daysToShow: number
 
     switch (range) {
       case "7d":
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
         previousStartDate = new Date(startDate.getTime() - 7 * 24 * 60 * 60 * 1000)
+        daysToShow = 7
         break
       case "90d":
         startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
         previousStartDate = new Date(startDate.getTime() - 90 * 24 * 60 * 60 * 1000)
+        daysToShow = 30 // Show last 30 days for 90d range
         break
       default: // 30d
         startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
         previousStartDate = new Date(startDate.getTime() - 30 * 24 * 60 * 60 * 1000)
+        daysToShow = 30
     }
 
     // Get current period stats
@@ -57,7 +62,7 @@ export async function GET(request: NextRequest) {
             createdAt: { gte: startDate }
           }
         }),
-        // Views (from PostAnalytic)
+        // Get real views from PostAnalytic
         prisma.postAnalytic.aggregate({
           where: {
             date: { gte: startDate }
@@ -90,7 +95,7 @@ export async function GET(request: NextRequest) {
             createdAt: { gte: previousStartDate, lt: startDate }
           }
         }),
-        // Views (from PostAnalytic)
+        // Get real views from PostAnalytic for previous period
         prisma.postAnalytic.aggregate({
           where: {
             date: { gte: previousStartDate, lt: startDate }
@@ -111,23 +116,49 @@ export async function GET(request: NextRequest) {
       return Math.round(((current - previous) / previous) * 100)
     }
 
-    const viewsChange = calculateChange(
-      currentViews._sum.viewsCount || 0,
-      previousViews._sum.viewsCount || 0
-    )
+    const viewsChange = calculateChange(currentViews._sum.viewsCount || 0, previousViews._sum.viewsCount || 0)
     const likesChange = calculateChange(currentLikes, previousLikes)
     const commentsChange = calculateChange(currentComments, previousComments)
     const usersChange = calculateChange(currentUsers, previousUsers)
 
-    // Get daily stats for the last 7 days
-    const dailyStats = await prisma.postAnalytic.findMany({
-      where: {
-        date: { gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) }
-      },
-      orderBy: {
-        date: 'asc'
-      }
-    })
+    // Generate daily stats for the chart using real data
+    const dailyStats = []
+    const chartStartDate = new Date(today.getTime() - (daysToShow - 1) * 24 * 60 * 60 * 1000)
+    
+    for (let i = 0; i < daysToShow; i++) {
+      const date = new Date(chartStartDate.getTime() + i * 24 * 60 * 60 * 1000)
+      const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000)
+      
+      const [dayLikes, dayComments, dayViews] = await Promise.all([
+        prisma.like.count({
+          where: {
+            createdAt: { gte: dayStart, lt: dayEnd }
+          }
+        }),
+        prisma.comment.count({
+          where: {
+            createdAt: { gte: dayStart, lt: dayEnd }
+          }
+        }),
+        // Get real views for this day
+        prisma.postAnalytic.aggregate({
+          where: {
+            date: { gte: dayStart, lt: dayEnd }
+          },
+          _sum: {
+            viewsCount: true
+          }
+        })
+      ])
+      
+      dailyStats.push({
+        date: date.toISOString().split('T')[0],
+        views: dayViews._sum.viewsCount || 0,
+        likes: dayLikes,
+        comments: dayComments
+      })
+    }
 
     return NextResponse.json({
       totalViews: currentViews._sum.viewsCount || 0,
@@ -138,12 +169,7 @@ export async function GET(request: NextRequest) {
       likesChange,
       commentsChange,
       usersChange,
-      dailyStats: dailyStats.map(stat => ({
-        date: stat.date.toISOString().split('T')[0],
-        views: stat.viewsCount,
-        likes: stat.likesCount,
-        comments: stat.commentsCount
-      }))
+      dailyStats: dailyStats
     })
   } catch (error) {
     console.error("Analytics error:", error)

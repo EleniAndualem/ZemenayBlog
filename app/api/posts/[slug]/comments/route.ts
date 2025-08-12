@@ -4,10 +4,10 @@ import { getAuthUser } from "@/lib/auth"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const slug = params.slug
+    const { slug } = await params
 
     // First get the post by slug
     const post = await prisma.post.findUnique({
@@ -19,14 +19,32 @@ export async function GET(
       return NextResponse.json({ error: "Post not found" }, { status: 404 })
     }
 
+    // Then get comments for this post
     const comments = await prisma.comment.findMany({
-      where: { postId: post.id },
+      where: {
+        postId: post.id,
+        parentId: null // Only top-level comments
+      },
       include: {
         author: {
           select: {
             id: true,
             fullName: true,
             profileImage: true
+          }
+        },
+        replies: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                fullName: true,
+                profileImage: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'asc'
           }
         }
       },
@@ -40,7 +58,13 @@ export async function GET(
         id: comment.id,
         content: comment.content,
         createdAt: comment.createdAt.toISOString(),
-        author: comment.author
+        author: comment.author,
+        replies: comment.replies.map(reply => ({
+          id: reply.id,
+          content: reply.content,
+          createdAt: reply.createdAt.toISOString(),
+          author: reply.author
+        }))
       }))
     })
   } catch (error) {

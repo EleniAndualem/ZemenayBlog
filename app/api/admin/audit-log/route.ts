@@ -14,10 +14,28 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1")
     const limit = 20
     const offset = (page - 1) * limit
+    const search = (searchParams.get('search') || '').trim()
+    const filter = (searchParams.get('filter') || 'all').toLowerCase()
+
+    // Build where clause for filtering and search
+    const where: any = {}
+    if (search) {
+      where.OR = [
+        { action: { contains: search, mode: 'insensitive' } },
+        { targetTable: { contains: search, mode: 'insensitive' } },
+        { targetId: { contains: search, mode: 'insensitive' } },
+        { admin: { fullName: { contains: search, mode: 'insensitive' } } },
+      ]
+    }
+    if (filter !== 'all') {
+      // Simple keyword filtering on action
+      where.action = { contains: filter, mode: 'insensitive' }
+    }
 
     // Get audit logs with pagination
     const [auditLogs, totalCount] = await Promise.all([
       prisma.adminAuditLog.findMany({
+        where,
         include: {
           admin: {
             select: {
@@ -33,7 +51,7 @@ export async function GET(request: NextRequest) {
         skip: offset,
         take: limit
       }),
-      prisma.adminAuditLog.count()
+      prisma.adminAuditLog.count({ where })
     ])
 
     const totalPages = Math.ceil(totalCount / limit)

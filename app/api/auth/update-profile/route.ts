@@ -95,12 +95,16 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
 
+    const profileImageBase64 = updatedUser.profileImage
+      ? Buffer.from(updatedUser.profileImage as unknown as Uint8Array).toString('base64')
+      : null
+
     return NextResponse.json({
       id: updatedUser.id,
       email: updatedUser.email,
       fullName: updatedUser.fullName,
       role: updatedUser.role,
-      profileImage: updatedUser.profileImage,
+      profileImage: profileImageBase64,
       darkMode: updatedUser.darkMode,
       createdAt: updatedUser.createdAt.toISOString(),
       updatedAt: updatedUser.updatedAt.toISOString(),

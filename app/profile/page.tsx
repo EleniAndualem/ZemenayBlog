@@ -48,45 +48,65 @@ export default function ProfilePage() {
 
       if (user.profileImage) {
         try {
-          console.log('Profile image type:', typeof user.profileImage)
-          console.log('Profile image structure:', user.profileImage)
-          
-          let buffer: Buffer
-          
-          // Handle different types of profileImage
-          if (user.profileImage instanceof Buffer) {
-            buffer = user.profileImage
-          } else if (user.profileImage instanceof Uint8Array) {
-            buffer = Buffer.from(user.profileImage)
-          } else if (Array.isArray(user.profileImage)) {
-            buffer = Buffer.from(user.profileImage)
-          } else if (typeof user.profileImage === 'object' && user.profileImage !== null) {
-            // Handle Prisma Bytes field which gets serialized as { type: 'Buffer', data: number[] }
-            if ('type' in user.profileImage && user.profileImage.type === 'Buffer' && 'data' in user.profileImage) {
-              // This is the standard Prisma Bytes serialization format
-              buffer = Buffer.from((user.profileImage as any).data)
-            } else if ('data' in user.profileImage && Array.isArray((user.profileImage as any).data)) {
-              buffer = Buffer.from((user.profileImage as any).data)
-            } else if ('buffer' in user.profileImage) {
-              // Handle ArrayBuffer-like objects
-              buffer = Buffer.from((user.profileImage as any).buffer)
-            } else {
-              console.warn('Unknown profileImage format:', typeof user.profileImage, user.profileImage)
-              setImagePreview(null)
-              return
+          // Helper to convert various image representations to an object URL or data URL
+          const toImageUrl = (src: unknown): string | null => {
+            try {
+              if (!src) return null
+              // If it's already a URL or data URL string
+              if (typeof src === 'string') {
+                if (src.startsWith('data:') || src.startsWith('http')) return src
+                // Assume base64 string without prefix
+                return `data:image/jpeg;base64,${src}`
+              }
+              // File or Blob
+              if (src instanceof File || src instanceof Blob) {
+                return URL.createObjectURL(src)
+              }
+              // ArrayBuffer
+              if (src instanceof ArrayBuffer) {
+                const blob = new Blob([src], { type: 'image/jpeg' })
+                return URL.createObjectURL(blob)
+              }
+              // Uint8Array
+              if (src instanceof Uint8Array) {
+                const blob = new Blob([src], { type: 'image/jpeg' })
+                return URL.createObjectURL(blob)
+              }
+              // number[]
+              if (Array.isArray(src)) {
+                const arr = new Uint8Array(src as number[])
+                const blob = new Blob([arr], { type: 'image/jpeg' })
+                return URL.createObjectURL(blob)
+              }
+              // Prisma Bytes serialization or generic object with data/buffer
+              if (typeof src === 'object' && src !== null) {
+                const anySrc = src as any
+                if (anySrc.type === 'Buffer' && Array.isArray(anySrc.data)) {
+                  const arr = new Uint8Array(anySrc.data)
+                  const blob = new Blob([arr], { type: 'image/jpeg' })
+                  return URL.createObjectURL(blob)
+                }
+                if (Array.isArray(anySrc.data)) {
+                  const arr = new Uint8Array(anySrc.data)
+                  const blob = new Blob([arr], { type: 'image/jpeg' })
+                  return URL.createObjectURL(blob)
+                }
+                if (anySrc.buffer instanceof ArrayBuffer) {
+                  const blob = new Blob([anySrc.buffer], { type: 'image/jpeg' })
+                  return URL.createObjectURL(blob)
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to convert image source to URL', e)
             }
-          } else {
-            console.warn('Unknown profileImage type:', typeof user.profileImage)
-            setImagePreview(null)
-            return
+            return null
           }
-          
-          const imageUrl = `data:image/jpeg;base64,${buffer.toString("base64")}`
+
+          const imageUrl = toImageUrl(user.profileImage)
           setImagePreview(imageUrl)
         } catch (error) {
           console.error("Error processing profile image:", error)
           console.error("Profile image data:", user.profileImage)
-          // Fallback to default image
           setImagePreview(null)
         }
       }
@@ -199,36 +219,10 @@ export default function ProfilePage() {
 
         // Update the auth context with the actual response data
         if (updateProfile) {
-          console.log('Updating profile with data:', {
-            fullName: data.fullName,
-            email: data.email,
-            profileImage: data.profileImage,
-            darkMode: data.darkMode,
-          })
-          
-          // Convert the profile image back to a proper Buffer if it exists
-          let profileImageBuffer: Buffer | undefined
-          if (data.profileImage) {
-            try {
-              if (data.profileImage instanceof Buffer) {
-                profileImageBuffer = data.profileImage
-              } else if (typeof data.profileImage === 'object' && data.profileImage !== null) {
-                // Handle Prisma Bytes serialization format
-                if ('type' in data.profileImage && data.profileImage.type === 'Buffer' && 'data' in data.profileImage) {
-                  profileImageBuffer = Buffer.from((data.profileImage as any).data)
-                } else if ('data' in data.profileImage && Array.isArray((data.profileImage as any).data)) {
-                  profileImageBuffer = Buffer.from((data.profileImage as any).data)
-                }
-              }
-            } catch (error) {
-              console.error('Error converting profile image:', error)
-            }
-          }
-          
           await updateProfile({
             fullName: data.fullName,
             email: data.email,
-            profileImage: profileImageBuffer,
+            profileImage: data.profileImage ?? null,
             darkMode: data.darkMode,
           })
         }

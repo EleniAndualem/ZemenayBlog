@@ -50,7 +50,7 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch(`/api/admin/dashboard?range=${timeRange}`)
+      const response = await fetch(`/api/admin/dashboard?range=${timeRange}`, { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setStats(data)
