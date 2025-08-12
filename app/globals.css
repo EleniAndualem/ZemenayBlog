@@ -104,6 +104,15 @@
   .sidebar-gradient {
     @apply bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900;
   }
+
+  /* Dark, immersive newsletter gradient with emphasis from both sides */
+  .newsletter-gradient {
+    background-image:
+      radial-gradient(ellipse at left, rgba(0,0,0,0.45), rgba(0,0,0,0) 55%),
+      radial-gradient(ellipse at right, rgba(0,0,0,0.45), rgba(0,0,0,0) 55%),
+      linear-gradient(90deg, #0a1a33 0%, #0e2f66 35%, #1e3a8a 50%, #0e2f66 65%, #0a1a33 100%);
+    background-blend-mode: overlay, overlay, normal;
+  }
 }
 
 /* Custom scrollbar */

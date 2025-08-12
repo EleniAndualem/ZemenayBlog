@@ -109,6 +109,7 @@ export async function GET(request: NextRequest) {
               viewsCount: true,
             },
           },
+          // readingTime fetched directly from post
           _count: {
             select: {
               likes: true,
@@ -133,6 +134,7 @@ export async function GET(request: NextRequest) {
       return {
         ...post,
         thumbnail: thumbnailBase64,
+        readingTime: (post as any).readingTime ?? null,
         author: {
           ...post.author,
           profileImage: authorImageBase64,

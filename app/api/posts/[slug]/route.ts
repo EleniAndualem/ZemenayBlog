@@ -39,6 +39,11 @@ export async function GET(
             }
           }
         },
+        images: {
+          select: {
+            imageData: true,
+          },
+        },
         _count: {
           select: {
             likes: true,
@@ -73,6 +78,7 @@ export async function GET(
 
     // Calculate total views from real analytics data
     const totalViews = post.analytics.reduce((sum, analytic) => sum + analytic.viewsCount, 0)
+    const imagesBase64 = post.images.map((img) => Buffer.from(img.imageData as unknown as Uint8Array).toString('base64'))
 
     return NextResponse.json({
       post: {
@@ -81,7 +87,9 @@ export async function GET(
         slug: post.slug,
         content: post.content,
         excerpt: post.excerpt,
+        readingTime: post.readingTime ?? null,
         thumbnail: post.thumbnail,
+        images: imagesBase64,
         publishedAt: post.publishedAt?.toISOString(),
         author: post.author,
         category: post.category,

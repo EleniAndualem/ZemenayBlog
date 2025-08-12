@@ -26,10 +26,9 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg gradient-bg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">B</span>
-            </div>
-            <span className="font-bold text-xl gradient-text">Blog</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/zememay logo.png" alt="Zemenay Blog" className="h-8 w-8 rounded" />
+            <span className="font-bold text-xl gradient-text">Zemenay Blog</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -109,7 +108,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="hidden md:flex items-center space-x-2">
                 <Link
                   href="/auth/login"
                   className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
@@ -161,6 +160,25 @@ export default function Header() {
               >
                 Categories
               </Link>
+
+              {!user && (
+                <div className="mt-2 pt-2 border-t border-border/40 flex flex-col space-y-2">
+                  <Link
+                    href="/auth/login"
+                    className="px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-accent rounded-lg transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="mx-4 px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition-all hover:shadow-lg text-center"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         )}

@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, content, excerpt, thumbnail, status, categoryId, tags } = await request.json()
+    const { title, content, excerpt, thumbnail, status, categoryId, tags, images, readingTime } = await request.json()
 
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 })
@@ -123,6 +123,10 @@ export async function POST(request: NextRequest) {
 
     if (content.trim().length < 10) {
       return NextResponse.json({ error: "Content must be at least 10 characters" }, { status: 400 })
+    }
+
+    if (!categoryId) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 })
     }
 
     const slug = generateSlug(title)
@@ -148,6 +152,7 @@ export async function POST(request: NextRequest) {
         status: status || "draft",
         authorId: user.id,
         categoryId: categoryId || null,
+        readingTime: typeof readingTime === 'number' ? readingTime : null,
         publishedAt: status === "published" ? new Date() : null,
       },
       include: {
@@ -174,6 +179,19 @@ export async function POST(request: NextRequest) {
       await prisma.postTag.createMany({
         data: tagConnections,
       })
+    }
+
+    // Save additional images if provided
+    if (images && Array.isArray(images) && images.length > 0) {
+      const imageRows = images
+        .filter((b64: unknown) => typeof b64 === 'string' && (b64 as string).length > 0)
+        .map((b64: string) => ({
+          postId: post.id,
+          imageData: Buffer.from(b64, 'base64'),
+        }))
+      if (imageRows.length > 0) {
+        await prisma.postImage.createMany({ data: imageRows })
+      }
     }
 
     // Log admin action

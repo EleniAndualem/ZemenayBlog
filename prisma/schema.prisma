@@ -50,6 +50,7 @@ model Post {
   content     String      @db.Text
   excerpt     String?     @db.Text
   thumbnail   Bytes?
+  readingTime Int?        @map("reading_time") @db.Integer
   status      PostStatus  @default(draft)
   categoryId  Int?        @map("category_id")
   publishedAt DateTime?   @map("published_at") @db.Timestamp(6)

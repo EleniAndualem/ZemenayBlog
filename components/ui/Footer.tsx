@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Github, Twitter, Linkedin, Mail } from "lucide-react"
+import { Github, MessageCircle, Linkedin, Mail } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -9,13 +9,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg gradient-bg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
-              </div>
-              <span className="font-bold text-xl gradient-text">Blog</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/zememay logo.png" alt="Zemenay Blog" className="h-8 w-8 rounded" />
+              <span className="font-bold text-xl gradient-text">Zemenay Blog</span>
             </div>
-            <p className="text-muted-foreground text-sm">
-              A modern blog platform built with Next.js, featuring advanced content management and beautiful design.
+            <p className="text-muted-foreground text-sm text-justify">
+              Zemenay Blog is your go-to space for inspiring stories, practical tutorials, and valuable insights from the world of creators. It’s where curious minds come to learn, connect, and share ideas—turning every read into a conversation.
             </p>
           </div>
 
@@ -84,7 +83,7 @@ export default function Footer() {
                 <Mail className="h-5 w-5" />
               </a>
               <a
-                href="https://github.com"
+                href="https://github.com/Zemenaytech"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg hover:bg-accent transition-colors"
@@ -93,16 +92,16 @@ export default function Footer() {
                 <Github className="h-5 w-5" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://t.me/zemenaycommunity"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg hover:bg-accent transition-colors"
-                title="Twitter"
+                title="Telegram"
               >
-                <Twitter className="h-5 w-5" />
+                <MessageCircle className="h-5 w-5" />
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/showcase/zemenay-softwares"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg hover:bg-accent transition-colors"
@@ -119,7 +118,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-border/40 text-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 Hackathon Blog. All rights reserved. Built with ❤️ using Next.js
+            © 2024 Zemenay Blog. All rights reserved. Designed by Team Dev.
           </p>
         </div>
       </div>

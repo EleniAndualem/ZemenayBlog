@@ -34,6 +34,7 @@ interface Post {
   content: string
   thumbnail?: Buffer
   publishedAt: string
+  readingTime?: number | null
   author: {
     id: string
     fullName: string
@@ -615,7 +616,7 @@ function BlogContent() {
                       <div className="absolute top-4 right-4">
                         <div className="flex items-center gap-1 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
                           <Clock className="w-3 h-3" />
-                          <span>{getReadingTime(post.content)} min</span>
+                          <span>{(post.readingTime ?? getReadingTime(post.content))} min</span>
                         </div>
                       </div>
                     </div>

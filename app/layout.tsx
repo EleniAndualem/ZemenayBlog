@@ -8,10 +8,13 @@ import { AuthProvider } from "@/hooks/useAuth"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Hackathon Blog - Modern Content Management",
-  description: "A modern, responsive blog platform with advanced content management features",
-  keywords: "blog, content management, Next.js, modern design",
-    generator: 'v0.dev'
+  title: "Zemenay Blog - Modern Content Management",
+  description: "Zemenay Blog is your go-to space for inspiring stories, practical tutorials, and valuable insights.",
+  keywords: "Zemenay Blog, blog, content management, Next.js, modern design",
+  generator: 'v0.dev',
+  icons: {
+    icon: "/zememay logo.png"
+  }
 }
 
 export default function RootLayout({

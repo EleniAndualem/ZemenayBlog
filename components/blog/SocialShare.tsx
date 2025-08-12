@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Share2, Twitter, Facebook, Linkedin, LinkIcon, Check } from "lucide-react"
+import { Share2, MessageCircle, Facebook, Linkedin, LinkIcon, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
@@ -15,7 +15,7 @@ export default function SocialShare({ url, title, description }: SocialShareProp
   const [copied, setCopied] = useState(false)
 
   const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
   }
@@ -44,11 +44,11 @@ export default function SocialShare({ url, title, description }: SocialShareProp
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem
-          onClick={() => openShareWindow(shareLinks.twitter)}
+          onClick={() => openShareWindow(shareLinks.telegram)}
           className="flex items-center gap-2 cursor-pointer"
         >
-          <Twitter className="w-4 h-4" />
-          Share on Twitter
+          <MessageCircle className="w-4 h-4" />
+          Share on Telegram
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => openShareWindow(shareLinks.facebook)}

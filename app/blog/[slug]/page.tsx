@@ -14,7 +14,8 @@ import {
   ArrowLeft,
   Send,
   ThumbsUp,
-  Clock
+  Clock,
+  Share2
 } from "lucide-react"
 import Header from "@/components/ui/Header"
 import Footer from "@/components/ui/Footer"
@@ -26,6 +27,8 @@ interface Post {
   slug: string
   content: string
   excerpt: string
+  readingTime?: number | null
+  images?: string[]
   thumbnail?: Buffer
   publishedAt: string
   author: {
@@ -75,6 +78,8 @@ export default function BlogPostPage() {
   const [commentContent, setCommentContent] = useState("")
   const [submittingComment, setSubmittingComment] = useState(false)
   const [liking, setLiking] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number>(0)
 
   useEffect(() => {
     if (params.slug) {
@@ -115,6 +120,22 @@ export default function BlogPostPage() {
       console.error('Failed to track view:', error)
     }
   }
+
+  // Lightbox keyboard handlers
+  useEffect(() => {
+    if (!lightboxOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false)
+      if (e.key === 'ArrowRight' && post?.images && lightboxIndex < post.images.length - 1) {
+        setLightboxIndex((i) => i + 1)
+      }
+      if (e.key === 'ArrowLeft' && lightboxIndex > 0) {
+        setLightboxIndex((i) => i - 1)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightboxOpen, lightboxIndex, post?.images])
 
   const fetchComments = async () => {
     try {
@@ -266,9 +287,7 @@ export default function BlogPostPage() {
               {post.title}
             </h1>
             
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">
-              {post.excerpt}
-            </p>
+            {/* Removed excerpt under title as requested */}
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -285,17 +304,12 @@ export default function BlogPostPage() {
                 <div className="flex items-center space-x-2">
                   <Clock className="h-5 w-5 text-gray-500" />
                   <span className="text-gray-700 dark:text-gray-300">
-                    {getReadingTime(post.content)} min read
+                    {(post.readingTime ?? getReadingTime(post.content))} min read
                   </span>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Eye className="h-5 w-5 text-gray-500" />
-                  <span className="text-gray-700 dark:text-gray-300">{post.totalViews}</span>
-                </div>
-              </div>
+              {/* Removed top actions (views/like/share) as requested */}
             </div>
           </header>
 
@@ -304,10 +318,52 @@ export default function BlogPostPage() {
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
 
-          {/* Tags */}
+          {/* Images gallery before tags */}
+          {post.images && post.images.length > 0 && (
+            <section className="mb-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {post.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}
+                    className="relative aspect-video overflow-hidden rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {/* Using next/image optional, fallback to img for data URI */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`data:image/jpeg;base64,${img}`} alt={`Post image ${idx + 1}`} className="object-cover w-full h-full" />
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Lightbox Modal */}
+          {lightboxOpen && post?.images && (
+            <div
+              className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center px-4"
+              onClick={() => setLightboxOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(false)}
+                className="absolute top-4 right-4 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg"
+              >
+                Close
+              </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`data:image/jpeg;base64,${post.images[lightboxIndex]}`}
+                alt={`Post image ${lightboxIndex + 1}`}
+                className="max-h-[90vh] max-w-[95vw] object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+
+          {/* Tags and actions in a row */}
           {post.tags.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tags</h3>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <Link
@@ -319,31 +375,40 @@ export default function BlogPostPage() {
                   </Link>
                 ))}
               </div>
+              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg">
+                  <Eye className="h-5 w-5" />
+                  <span>{post.totalViews}</span>
+                </div>
+                <button
+                  onClick={handleLike}
+                  disabled={liking}
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
+                    post.isLiked ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
+                  <span>{post._count.likes}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({ title: post.title, url: window.location.href })
+                    } else {
+                      navigator.clipboard.writeText(window.location.href)
+                      alert('Link copied')
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                >
+                  <Share2 className="h-5 w-5" />
+                  Share
+                </button>
+              </div>
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-8 mb-8">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleLike}
-                disabled={liking}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                  post.isLiked 
-                    ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' 
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                <span>{post._count.likes}</span>
-              </button>
-              
-              <div className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg">
-                <MessageSquare className="h-5 w-5" />
-                <span>{post._count.comments}</span>
-              </div>
-            </div>
-          </div>
+          {/* Removed separate actions bar; like is inline with views above */}
 
           {/* Comments section */}
           <section className="border-t border-gray-200 dark:border-gray-700 pt-8">
@@ -403,7 +468,7 @@ export default function BlogPostPage() {
 
             {comments.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No comments yet. Be the first to share your thoughts!
+                No comments yet — what do you think about this post? Share your thoughts below!
               </div>
             )}
           </section>

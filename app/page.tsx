@@ -80,7 +80,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-20 relative">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Welcome to the Future of <span className="gradient-text">Blogging</span>
+              Welcome to the Future of <span className="gradient-text">CREATIVITY</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Discover amazing stories, insights, and ideas from our community of writers. Join thousands of readers
@@ -249,22 +249,28 @@ export default function HomePage() {
 
       {/* Newsletter Section */}
       {!user && (
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
+        <section className="relative overflow-hidden py-16 bg-background dark:newsletter-gradient">
+          {/* Light mode subtle hero-like overlay */}
+          <div className="absolute inset-0 gradient-bg opacity-10 dark:hidden" />
+          <div className="container mx-auto px-4 relative">
             <div className="max-w-2xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Updated</h2>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-xl text-muted-foreground dark:text-white/90 mb-8">
                 Get the latest articles and insights delivered to your inbox
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                />
-                <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                  Subscribe
-                </button>
+              <div className="max-w-md mx-auto">
+                <div className="bg-white/60 dark:bg-white/10 backdrop-blur rounded-xl p-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none"
+                    />
+                    <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors dark:bg-white dark:text-blue-600 dark:hover:bg-gray-100">
+                      Subscribe
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

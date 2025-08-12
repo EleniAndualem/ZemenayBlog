@@ -83,10 +83,9 @@ export default function AdminLayout({
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-white/10">
             <Link href="/admin" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">B</span>
-              </div>
-              <span className="text-white font-bold text-xl">Admin</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/zememay logo.png" alt="Zemenay Admin" className="h-8 w-8 rounded" />
+              <span className="text-white font-bold text-xl">Admin Panel</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -146,13 +145,7 @@ export default function AdminLayout({
         {/* Top bar */}
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between h-16 px-6">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-
+            <div className="flex-1" />
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleTheme}
@@ -163,10 +156,18 @@ export default function AdminLayout({
 
               <Link
                 href="/"
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               >
-                View Site
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
               </Link>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </header>

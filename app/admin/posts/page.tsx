@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Plus, Search, Edit, Trash2, Eye, Calendar, FileText } from "lucide-react"
+import { Plus, Search, Edit, Trash2, Eye, Calendar, FileText, AlertCircle, CheckCircle2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 interface Post {
   id: string
@@ -21,6 +22,8 @@ export default function PostsPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const { toast } = useToast()
+  const [confirm, setConfirm] = useState<{open: boolean; postId?: string}>(()=>({open:false}))
 
   useEffect(() => {
     fetchPosts()
@@ -44,19 +47,20 @@ export default function PostsPage() {
     }
   }
 
-  const deletePost = async (postId: string) => {
-    if (!confirm("Are you sure you want to delete this post?")) return
-
+  const doDelete = async (postId: string) => {
     try {
-      const response = await fetch(`/api/admin/posts/${postId}`, {
-        method: "DELETE",
-      })
-
+      const response = await fetch(`/api/admin/posts/${postId}`, { method: "DELETE" })
       if (response.ok) {
-        setPosts(posts.filter((post) => post.id !== postId))
+        setPosts((prev)=>prev.filter((p)=>p.id!==postId))
+        toast({ title: "Post deleted" })
+      } else {
+        const data = await response.json().catch(()=>({}))
+        toast({ title: data.error || "Delete failed" })
       }
     } catch (error) {
-      console.error("Failed to delete post:", error)
+      toast({ title: "Delete failed" })
+    } finally {
+      setConfirm({open:false})
     }
   }
 
@@ -156,19 +160,19 @@ export default function PostsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {posts.filter((p) => p.status === "published").length}
+               {posts.filter((p) => p.status.toLowerCase() === "published").length}
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">Published</div>
           </div>
           <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {posts.filter((p) => p.status === "draft").length}
+               {posts.filter((p) => p.status.toLowerCase() === "draft").length}
             </div>
             <div className="text-sm text-yellow-600 dark:text-yellow-400">Drafts</div>
           </div>
           <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-4">
             <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-              {posts.filter((p) => p.status === "archived").length}
+               {posts.filter((p) => p.status.toLowerCase() === "archived").length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Archived</div>
           </div>
@@ -241,7 +245,7 @@ export default function PostsPage() {
                           <Edit className="h-4 w-4" />
                         </Link>
                         <button
-                          onClick={() => deletePost(post.id)}
+                          onClick={() => setConfirm({open:true, postId: post.id})}
                           className="p-2 text-gray-400 hover:text-red-600 transition-colors"
                           title="Delete post"
                         >
@@ -275,6 +279,18 @@ export default function PostsPage() {
           </div>
         )}
       </div>
+      {confirm.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-2">Delete post?</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">This action cannot be undone.</p>
+            <div className="flex gap-2 justify-end">
+              <button onClick={()=>setConfirm({open:false})} className="px-4 py-2 rounded-lg border dark:border-gray-600">Cancel</button>
+              <button onClick={()=>confirm.postId && doDelete(confirm.postId)} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
