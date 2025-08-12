@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  // Relations
+  users User[]
+
+  @@map("roles")
+}
+
+model User {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roleId        Int      @map("role_id")
+  fullName      String   @map("full_name") @db.VarChar(150)
+  email         String   @unique @db.VarChar(150)
+  passwordHash  String   @map("password_hash") @db.Text
+  profileImage  Bytes?   @map("profile_image")
+  darkMode      Boolean  @default(false) @map("dark_mode")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  role         Role            @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  posts        Post[]          @relation("PostAuthor")
+  comments     Comment[]       @relation("CommentAuthor")
+  likes        Like[]
+  auditLogs    AdminAuditLog[]
+  createdAdmins User[]         @relation("AdminCreator")
+  createdBy    User?           @relation("AdminCreator", fields: [createdById], references: [id])
+  createdById  String?         @map("created_by_id") @db.Uuid
+
+  @@index([email], map: "idx_users_email")
+  @@map("users")
+}
+
+model Post {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authorId    String      @map("author_id") @db.Uuid
+  title       String      @db.VarChar(255)
+  slug        String      @unique @db.VarChar(255)
+  content     String      @db.Text
+  excerpt     String?     @db.Text
+  thumbnail   Bytes?
+  status      PostStatus  @default(draft)
+  categoryId  Int?        @map("category_id")
+  publishedAt DateTime?   @map("published_at") @db.Timestamp(6)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  author     User           @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  category   Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  images     PostImage[]
+  tags       PostTag[]
+  likes      Like[]
+  comments   Comment[]
+  analytics  PostAnalytic[]
+
+  @@index([slug], map: "idx_posts_slug")
+  @@index([authorId], map: "idx_posts_author_id")
+  @@index([status], map: "idx_posts_status")
+  @@index([publishedAt], map: "idx_posts_published_at")
+  @@map("posts")
+}
+
+model PostImage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  imageData Bytes    @map("image_data")
+  fileName  String?  @map("file_name") @db.VarChar(255)
+  mimeType  String?  @map("mime_type") @db.VarChar(100)
+  size      Int?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId], map: "idx_post_images_post_id")
+  @@map("post_images")
+}
+
+model Category {
+  id          Int    @id @default(autoincrement())
+  name        String @unique @db.VarChar(100)
+  slug        String @unique @db.VarChar(100)
+  description String? @db.Text
+  color       String @default("#3B82F6") @db.VarChar(7)
+
+  // Relations
+  posts Post[]
+
+  @@index([slug], map: "idx_categories_slug")
+  @@map("categories")
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(100)
+  slug String @unique @db.VarChar(100)
+
+  // Relations
+  posts PostTag[]
+
+  @@index([slug], map: "idx_tags_slug")
+  @@map("tags")
+}
+
+model PostTag {
+  postId String @map("post_id") @db.Uuid
+  tagId  Int    @map("tag_id")
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("post_tags")
+}
+
+model Like {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId], map: "idx_likes_post_id")
+  @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  authorId  String   @map("author_id") @db.Uuid
+  content   String   @db.Text
+  parentId  String?  @map("parent_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author   User      @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([postId], map: "idx_comments_post_id")
+  @@index([authorId], map: "idx_comments_author_id")
+  @@map("comments")
+}
+
+model PostAnalytic {
+  postId        String   @map("post_id") @db.Uuid
+  date          DateTime @db.Date
+  viewsCount    Int      @default(0) @map("views_count")
+  likesCount    Int      @default(0) @map("likes_count")
+  commentsCount Int      @default(0) @map("comments_count")
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, date])
+  @@index([date], map: "idx_post_analytics_date")
+  @@map("post_analytics")
+}
+
+model AdminAuditLog {
+  id          Int      @id @default(autoincrement())
+  adminId     String   @map("admin_id") @db.Uuid
+  action      String   @db.Text
+  targetTable String   @map("target_table") @db.Text
+  targetId    String   @map("target_id") @db.Text
+  details     Json?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId], map: "idx_audit_admin_id")
+  @@index([createdAt], map: "idx_audit_created_at")
+  @@map("admin_audit_log")
+}
+
+enum PostStatus {
+  draft
+  published
+  archived
+
+  @@map("post_status")
+}
