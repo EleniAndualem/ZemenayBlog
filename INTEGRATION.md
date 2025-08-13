@@ -6,7 +6,7 @@ Hey Zemenay Community team! Here's how to add a blog button to your main website
 
 ---
 
-## Option 3: Install via npm and mount under /blog (Dedicated DB)
+## Option 1: Install via npm and mount under /blog (Dedicated DB)
 
 This is the recommended setup for the main site [Zemenay Tech](https://www.zemenaytech.com/): install the package, mount the routes, and use a dedicated DB for the blog.
 
@@ -100,7 +100,7 @@ npm run dev
 - Visit `/blog`, `/blog/<slug>`, and (optionally) `/admin`.
 - Confirm posts are served from the blog DB.
 
-## Option 1: Simple Blog Header Button (Recommended)
+## Option 2: Simple Blog Header Button
 
 ### What You Need to Do
 
@@ -146,7 +146,7 @@ const Header = () => {
 
 ---
 
-## Option 2: If You're Using Next.js
+## Option 3: If You're Using Next.js
 
 ### What You Need to Do
 
