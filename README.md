@@ -332,13 +332,7 @@ After seeding:
 - **[INTEGRATION.md](./INTEGRATION.md)** - Complete integration guide for main site developers
 - **[Package README](./packages/zemenay-blog/README.md)** - Detailed package documentation
 
-## 📺 **Video Tutorials**
 
-For visual learners, check out our **[Video Tutorials & Resources](./INTEGRATION.md#-video-tutorials--resources)** section in the integration guide, featuring:
-- npm package integration tutorials
-- Next.js package setup guides
-- Prisma database integration
-- Tailwind CSS customization
 
 ## 🤝 Support
 

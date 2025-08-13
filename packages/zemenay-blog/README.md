@@ -282,13 +282,7 @@ For issues or questions:
 - Open an issue in the repository
 - Contact the development team
 
-## 📺 **Video Resources**
 
-For step-by-step visual guidance on integrating this package:
-- **[Integration Guide with Videos](./INTEGRATION.md#-video-tutorials--resources)** - Complete video tutorials
-- **npm Package Integration** - Learn how to use npm packages in Next.js
-- **Database Setup** - Prisma integration tutorials
-- **Styling & Theming** - Tailwind CSS customization guides
 
 ## License
 

@@ -283,32 +283,7 @@ Once you add this button:
 - They can read blog posts and interact with the blog
 - When they're done, they can use the browser back button to return to your main site
 
-## 📺 **Video Tutorials & Resources**
 
-### **YouTube Videos for npm Package Integration**
-
-Here are some helpful YouTube videos that demonstrate how to integrate npm packages into Next.js applications:
-
-#### **Next.js Package Integration**
-- **[How to Create and Publish an NPM Package](https://www.youtube.com/watch?v=J4a_TDlsz54)** - Learn the basics of npm packages
-- **[Next.js Monorepo Setup with npm Workspaces](https://www.youtube.com/watch?v=G8KpFWwVlGA)** - Understanding monorepo structure
-- **[How to Use External Packages in Next.js](https://www.youtube.com/watch?v=1aPBNe6tHRM)** - Integrating third-party packages
-
-#### **Prisma & Database Integration**
-- **[Prisma with Next.js - Complete Guide](https://www.youtube.com/watch?v=RebA5J-rlwg)** - Database setup and integration
-- **[Next.js API Routes Tutorial](https://www.youtube.com/watch?v=zueqQKZkqOQ)** - Building API endpoints
-
-#### **Tailwind CSS Integration**
-- **[Tailwind CSS with Next.js](https://www.youtube.com/watch?v=3HNyXCPDQ7Q)** - Styling and configuration
-- **[Custom CSS Variables in Tailwind](https://www.youtube.com/watch?v=7rXc8Ig51yY)** - Theming and customization
-
-### **Recommended Learning Path**
-1. **Start with npm package basics** (first video)
-2. **Learn Next.js package integration** (third video)
-3. **Understand Prisma setup** (fourth video)
-4. **Master Tailwind integration** (fifth video)
-
----
 
 ## Questions?
 
