@@ -118,7 +118,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-border/40 text-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 Zemenay Blog. All rights reserved. Designed by Team Dev.
+            © 2025 Zemenay Blog. All rights reserved. Designed by Team Dev.
           </p>
         </div>
       </div>
