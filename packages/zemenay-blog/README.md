@@ -278,7 +278,7 @@ npx prisma migrate deploy --schema node_modules/zemenay-blog/prisma/blog.schema.
 ## Support
 
 For issues or questions:
-- Check the [main repository](https://github.com/zemenay/zemenay-blog)
+- Check the [main repository](https://github.com/EleniAndualem/zemenay-blog)
 - Open an issue in the repository
 - Contact the development team
 
