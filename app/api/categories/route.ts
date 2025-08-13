@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       categories: categories.map(category => ({
         id: category.id,
         name: category.name,
@@ -26,6 +26,13 @@ export async function GET(request: NextRequest) {
         _count: category._count
       }))
     })
+
+    // Add CORS headers for external integration
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+    return response
   } catch (error) {
     console.error("Categories error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

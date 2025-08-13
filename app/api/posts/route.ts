@@ -159,6 +159,11 @@ export async function GET(request: NextRequest) {
       },
     })
 
+    // Add CORS headers for external integration
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    
     // Add cache headers
     response.headers.set(
       "Cache-Control",
