@@ -1,0 +1,190 @@
+# Zemenay Blog Package
+
+A complete, self-contained blog package for Next.js applications with dedicated database support.
+
+## Features
+
+- **Complete Blog System**: Home page, blog listing, individual posts, categories, tags
+- **Admin Dashboard**: Post management, user management, analytics, audit logs
+- **Authentication**: JWT-based auth with role-based access control
+- **Dedicated Database**: Uses `BLOG_DATABASE_URL` for isolated data
+- **Modern UI**: Built with Tailwind CSS and shadcn/ui components
+- **SEO Ready**: Sitemaps, robots.txt, meta tags
+
+## Installation
+
+```bash
+npm install zemenay-blog
+# or
+pnpm add zemenay-blog
+```
+
+## Quick Start
+
+### 1. Configure Next.js
+
+```js
+// next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  transpilePackages: ['zemenay-blog']
+};
+export default nextConfig;
+```
+
+### 2. Configure Tailwind
+
+```js
+// tailwind.config.js
+module.exports = {
+  content: [
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './node_modules/zemenay-blog/**/*.{ts,tsx}'
+  ]
+};
+```
+
+### 3. Set Environment Variables
+
+```env
+BLOG_DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
+JWT_SECRET=your-secret-key
+NEXT_PUBLIC_SITE_URL=https://yoursite.com
+```
+
+### 4. Generate Prisma Client
+
+```bash
+npx prisma generate --schema node_modules/zemenay-blog/prisma/blog.schema.prisma
+```
+
+### 5. Mount Routes
+
+Create re-export files in your app:
+
+```ts
+// app/page.tsx (home page)
+export { default } from 'zemenay-blog/next/app/page';
+
+// app/blog/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/page';
+
+// app/blog/[slug]/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/[slug]/page';
+
+// app/admin/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/page';
+
+// app/admin/dashboard/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/dashboard/page';
+```
+
+## Database Schema
+
+The package includes a complete Prisma schema with:
+
+- Users and roles
+- Posts with categories and tags
+- Comments and likes
+- Analytics and audit logs
+- Image management
+
+## API Routes
+
+The package provides these API endpoints:
+
+- `/api/posts` - Blog post management
+- `/api/categories` - Category management
+- `/api/tags` - Tag management
+- `/api/comments` - Comment system
+- `/api/auth/*` - Authentication endpoints
+- `/api/admin/*` - Admin endpoints
+
+## Components
+
+### UI Components
+- `Header` - Navigation with auth
+- `Footer` - Site footer
+- `Button`, `Card`, etc. - shadcn/ui components
+
+### Blog Components
+- `BlogListSkeleton` - Loading states
+- `ErrorBoundary` - Error handling
+- `LoadingSkeleton` - Skeleton loaders
+
+## Hooks
+
+- `useAuth` - Authentication state and methods
+- `useTheme` - Theme management
+- `useBlogPosts` - Blog post data
+
+## Styling
+
+The package uses Tailwind CSS with custom CSS variables for theming. Include the package's CSS in your global styles:
+
+```css
+@import 'zemenay-blog/styles/globals.css';
+```
+
+## Customization
+
+### Theme Colors
+Override CSS variables in your global CSS:
+
+```css
+:root {
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+  --accent: 241 245 249;
+  --accent-foreground: 15 23 42;
+}
+```
+
+### Layout
+Customize the layout by wrapping with your own providers:
+
+```tsx
+// app/layout.tsx
+import { AuthProvider } from 'zemenay-blog/hooks/useAuth';
+import { ThemeProvider } from 'zemenay-blog/hooks/useTheme';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <AuthProvider>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+## Deployment
+
+1. Set `BLOG_DATABASE_URL` in your deployment environment
+2. Run Prisma migrations if needed
+3. Deploy your main app - the blog routes are compiled with it
+
+## Database Migrations
+
+For production deployments, run migrations:
+
+```bash
+npx prisma migrate deploy --schema node_modules/zemenay-blog/prisma/blog.schema.prisma
+```
+
+## Support
+
+For issues or questions:
+- Check the [main repository](https://github.com/zemenay/zemenay-blog)
+- Open an issue in the repository
+- Contact the development team
+
+## License
+
+MIT License - see LICENSE file for details.
