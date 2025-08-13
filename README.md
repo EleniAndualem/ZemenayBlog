@@ -4,6 +4,8 @@ A full-featured blog platform built with Next.js, featuring a modern admin dashb
 
 > 🚀 **Ready for Integration:** The `zemenay-blog` package is now published to npm and ready to be integrated into the main Zemenay Tech website. See [Integration Guide](#-integration-for-the-main-site) below.
 
+> 📦 **Latest Version:** `zemenay-blog@0.1.1` - Now includes complete UI and blog component library with 55+ components!
+
 ## 🚀 Features
 
 ### **Core Features**
@@ -488,7 +490,7 @@ export { default } from 'zemenay-blog/next/app/sitemap'
 ### Package Status
 ✅ **Published to npm** - The `zemenay-blog` package is now live on npm and ready for integration:
 - **Package URL:** [https://www.npmjs.com/package/zemenay-blog](https://www.npmjs.com/package/zemenay-blog)
-- **Version:** `0.1.0`
+- **Version:** `0.1.1`
 - **Install Command:** `npm install zemenay-blog`
 
 ### For Local Development
@@ -512,6 +514,22 @@ After seeding:
 - **Superadmin:** `superadmin@example.com` / `password123`
 - **Admin:** `admin@example.com` / `password123`
 - **User:** `user@example.com` / `password123`
+
+## 📋 Changelog
+
+### Version 0.1.1 (Latest)
+- ✅ **Complete UI Component Library** - Added 55+ UI components (Button, Card, Dialog, Form, etc.)
+- ✅ **Blog Component Library** - Added 5 blog-specific components (CommentSection, LikeButton, Pagination, etc.)
+- ✅ **Enhanced Package Exports** - Proper index files for easy component imports
+- ✅ **Updated Dependencies** - Added all necessary Radix UI and utility dependencies
+- ✅ **Comprehensive Documentation** - Complete mount points reference and integration guides
+- ✅ **Ready for Production** - Full component library ready for npm consumption
+
+### Version 0.1.0
+- ✅ **Initial Release** - Core blog functionality with admin dashboard
+- ✅ **Basic Components** - Essential UI components and blog features
+- ✅ **Database Schema** - Complete Prisma schema with all necessary models
+- ✅ **API Routes** - Full CRUD operations for posts, comments, and users
 
 ## 📚 Documentation
 

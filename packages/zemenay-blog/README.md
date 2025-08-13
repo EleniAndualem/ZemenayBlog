@@ -4,6 +4,8 @@ A complete, self-contained blog package for Next.js applications with dedicated 
 
 > 📦 **Published Package:** This package is now live on npm and ready for production use!
 
+> 🎉 **Latest Version:** `zemenay-blog@0.1.1` - Complete UI and blog component library with 55+ components!
+
 ## Features
 
 - **Complete Blog System**: Home page, blog listing, individual posts, categories, tags
