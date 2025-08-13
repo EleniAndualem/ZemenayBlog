@@ -96,6 +96,71 @@ The package includes a complete Prisma schema with:
 - Analytics and audit logs
 - Image management
 
+## Components
+
+The package exports a comprehensive set of UI and blog components that you can use in your application:
+
+### UI Components
+
+```tsx
+import { 
+  Button, 
+  Card, 
+  Dialog, 
+  Form, 
+  Input, 
+  Select,
+  // ... and many more
+} from 'zemenay-blog/components/ui';
+
+// Or import individual components
+import { Button } from 'zemenay-blog/components/ui/button';
+```
+
+### Blog Components
+
+```tsx
+import { 
+  CommentSection, 
+  LikeButton, 
+  Pagination, 
+  SearchAndFilter, 
+  SocialShare 
+} from 'zemenay-blog/components/blog';
+
+// Or import individual components
+import { CommentSection } from 'zemenay-blog/components/blog/CommentSection';
+```
+
+### Other Components
+
+```tsx
+import { 
+  NewsletterForm, 
+  RichTextEditor, 
+  ThemeProvider 
+} from 'zemenay-blog/components';
+```
+
+### Available UI Components
+
+- **Layout**: Header, Footer, Sidebar, NavigationMenu
+- **Forms**: Form, Input, Textarea, Select, Checkbox, RadioGroup, Switch
+- **Feedback**: Toast, Alert, Progress, Skeleton, LoadingSkeleton
+- **Data Display**: Table, Card, Badge, Avatar, Separator
+- **Navigation**: Breadcrumb, Pagination, Tabs, Accordion
+- **Overlay**: Dialog, Popover, Tooltip, HoverCard, Sheet
+- **Media**: OptimizedImage, Carousel, Chart
+- **Utilities**: ErrorBoundary, ThemeProvider
+
+### Available Blog Components
+
+- **CommentSection**: Full-featured comment system with replies
+- **LikeButton**: Like/unlike functionality with animations
+- **Pagination**: Blog post pagination with search
+- **SearchAndFilter**: Advanced search and filtering
+- **SocialShare**: Social media sharing buttons
+
 ## API Routes
 
 The package provides these API endpoints:
@@ -206,6 +271,130 @@ export { default } from 'zemenay-blog/next/app/auth/login/page'
 
 // app/auth/register/page.tsx
 export { default } from 'zemenay-blog/next/app/auth/register/page'
+```
+
+## 📋 Complete Mount Points Reference
+
+### Core Pages (Required)
+```ts
+// app/page.tsx (homepage)
+export { default } from 'zemenay-blog/next/app/page'
+
+// app/blog/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/page'
+
+// app/blog/[slug]/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/[slug]/page'
+
+// app/blog/loading.tsx
+export { default } from 'zemenay-blog/next/app/blog/loading'
+
+// app/error.tsx (error handling)
+export { default } from 'zemenay-blog/next/app/error'
+
+// app/not-found.tsx (404 page)
+export { default } from 'zemenay-blog/next/app/not-found'
+```
+
+### Admin Pages
+```ts
+// app/admin/layout.tsx
+export { default } from 'zemenay-blog/next/app/admin/layout'
+
+// app/admin/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/page'
+
+// app/admin/dashboard/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/dashboard/page'
+
+// app/admin/admins/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/admins/page'
+
+// app/admin/admins/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/admins/loading'
+
+// app/admin/comments/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/comments/page'
+
+// app/admin/analytics/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/analytics/page'
+
+// app/admin/audit-log/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/audit-log/page'
+
+// app/admin/posts/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/page'
+
+// app/admin/posts/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/loading'
+
+// app/admin/posts/new/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/new/page'
+
+// app/admin/posts/[id]/edit/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/[id]/edit/page'
+
+// app/admin/users/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/users/page'
+
+// app/admin/users/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/users/loading'
+```
+
+### API Routes (Optional)
+```ts
+// Core API routes
+export { GET, POST } from 'zemenay-blog/next/app/api/posts/route'
+export { GET, POST, PUT, DELETE } from 'zemenay-blog/next/app/api/posts/[slug]/route'
+export { GET, POST } from 'zemenay-blog/next/app/api/posts/[slug]/comments/route'
+export { POST } from 'zemenay-blog/next/app/api/posts/[slug]/like/route'
+export { GET } from 'zemenay-blog/next/app/api/posts/[slug]/like-status/route'
+export { POST } from 'zemenay-blog/next/app/api/posts/[slug]/view/route'
+
+// Categories and tags
+export { GET } from 'zemenay-blog/next/app/api/categories/route'
+export { GET } from 'zemenay-blog/next/app/api/tags/route'
+
+// Comments
+export { GET, POST, PUT, DELETE } from 'zemenay-blog/next/app/api/comments/[id]/route'
+
+// Authentication
+export { POST } from 'zemenay-blog/next/app/api/auth/login/route'
+export { POST } from 'zemenay-blog/next/app/api/auth/logout/route'
+export { GET } from 'zemenay-blog/next/app/api/auth/me/route'
+export { POST } from 'zemenay-blog/next/app/api/auth/register/route'
+export { PUT } from 'zemenay-blog/next/app/api/auth/update-profile/route'
+export { POST } from 'zemenay-blog/next/app/api/auth/update-theme/route'
+
+// Newsletter
+export { POST } from 'zemenay-blog/next/app/api/newsletter/subscribe/route'
+
+// Admin routes (require authentication)
+export { GET } from 'zemenay-blog/next/app/api/admin/dashboard/route'
+export { GET, POST, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/posts/route'
+export { GET, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/posts/[id]/route'
+export { POST } from 'zemenay-blog/next/app/api/admin/posts/auto-save/route'
+export { GET, POST, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/users/route'
+export { GET, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/users/[id]/route'
+export { GET, POST, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/admins/route'
+export { GET, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/admins/[id]/route'
+export { POST } from 'zemenay-blog/next/app/api/admin/create-admin/route'
+export { GET, POST, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/comments/route'
+export { GET, PUT, DELETE } from 'zemenay-blog/next/app/api/admin/comments/[id]/route'
+export { GET } from 'zemenay-blog/next/app/api/admin/analytics/route'
+export { GET } from 'zemenay-blog/next/app/api/admin/audit-log/route'
+
+// Roles
+export { GET } from 'zemenay-blog/next/app/api/roles/route'
+```
+
+### SEO Files (Optional)
+```ts
+// app/robots.ts
+export { default } from 'zemenay-blog/next/app/robots'
+
+// app/sitemap.ts
+export { default } from 'zemenay-blog/next/app/sitemap'
 ```
 
 ## Customization
