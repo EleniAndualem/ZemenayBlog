@@ -101,7 +101,7 @@ This blog is designed to integrate seamlessly with the main Zemenay community we
 ```typescript
 const BlogHeader = () => {
   const handleBlogClick = () => {
-    window.location.href = 'https://zemenayy-blog.vercel.app'
+    window.location.href = 'https://zemenay-blog.vercel.app/'
   }
   
   return <button onClick={handleBlogClick}>Blog</button>
@@ -157,7 +157,7 @@ For integration help, refer to `INTEGRATION.md` or contact the development team.
 
 ## 🌐 Live Demo
 
-- **Blog URL:** [https://zemenayy-blog.vercel.app](https://zemenayy-blog.vercel.app)
+- **Blog URL:** [https://zemenay-blog.vercel.app/](https://zemenay-blog.vercel.app/)
 - **Admin Dashboard:** Available after login with admin credentials
 
 ---
