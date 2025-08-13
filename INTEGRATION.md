@@ -25,11 +25,11 @@ This is the recommended setup for the main site [Zemenay Tech](https://www.zemen
 
 ### 1) Install
 ```bash
-npm install zemenay-blog
+npm install zemenay-blog@latest
 # or
-pnpm add zemenay-blog
+pnpm add zemenay-blog@latest
 # or
-yarn add zemenay-blog
+yarn add zemenay-blog@latest
 ```
 
 > 📦 **Package Published:** The `zemenay-blog` package is now live on npm at [https://www.npmjs.com/package/zemenay-blog](https://www.npmjs.com/package/zemenay-blog)
