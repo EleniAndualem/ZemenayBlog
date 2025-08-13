@@ -84,6 +84,9 @@ const nextConfig = {
   // Webpack optimization - keep minimal customization to avoid incompatibilities
   webpack: (config) => config,
 
+  // Ensure the local package is transpiled
+  transpilePackages: ['zemenay-blog'],
+
   // Output configuration
   output: 'standalone',
 

@@ -2,13 +2,16 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma generate --schema packages/zemenay-blog/prisma/blog.schema.prisma && next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "postinstall": "prisma generate",
-    "db:generate": "prisma generate",
+    "postinstall": "prisma generate && prisma generate --schema packages/zemenay-blog/prisma/blog.schema.prisma",
+    "db:generate": "prisma generate && prisma generate --schema packages/zemenay-blog/prisma/blog.schema.prisma",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-dashboard": "node scripts/seed-dashboard-data.js",

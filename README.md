@@ -91,24 +91,111 @@ zemenay-blog/
    npm run dev
    ```
 
-## 🔗 Integration
+## 🔗 Integration (for the main site)
 
-### For Zemenay Community Website
+For developers of the main site [Zemenay Tech](https://www.zemenaytech.com/), here’s the fastest way to install and mount the blog under your app.
 
-This blog is designed to integrate seamlessly with the main Zemenay community website. See `INTEGRATION.md` for complete integration instructions.
+### Option A (recommended): Install via npm and mount under /blog
 
-**Simple Integration:**
-```typescript
-const BlogHeader = () => {
-  const handleBlogClick = () => {
-    window.location.href = 'https://zemenay-blog.vercel.app/'
-  }
-  
-  return <button onClick={handleBlogClick}>Blog</button>
+1) Install the package
+```bash
+npm i zemenay-blog
+```
+
+2) Next.js config (transpile the package)
+```js
+// next.config.mjs
+/** @type {import('next').NextConfig} */
+export default {
+  transpilePackages: ['zemenay-blog'],
 }
 ```
 
-> 💡 **Note:** This is the deployed blog URL. If you're running your own instance, replace it with your actual deployed blog URL.
+3) Tailwind config (scan package files)
+```js
+// tailwind.config.js
+module.exports = {
+  content: [
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './node_modules/zemenay-blog/**/*.{ts,tsx}',
+  ],
+}
+```
+
+4) Environment variables
+```env
+# Blog package database (dedicated)
+BLOG_DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
+
+# Main site database (if your app also uses Prisma)
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
+
+# Used by links and SEO
+NEXT_PUBLIC_SITE_URL=https://www.zemenaytech.com
+
+# For JWT in blog auth flows
+JWT_SECRET=your_strong_secret
+```
+
+5) Mount the blog and admin routes (re-export files in your host app)
+```ts
+// app/blog/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/page'
+
+// app/blog/[slug]/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/[slug]/page'
+
+// app/blog/loading.tsx
+export { default } from 'zemenay-blog/next/app/blog/loading'
+```
+
+Admin (optional):
+```ts
+// app/admin/layout.tsx
+export { default } from 'zemenay-blog/next/app/admin/layout'
+// app/admin/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/page'
+// app/admin/dashboard/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/dashboard/page'
+// app/admin/admins/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/admins/page'
+// app/admin/admins/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/admins/loading'
+// app/admin/comments/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/comments/page'
+// app/admin/analytics/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/analytics/page'
+// app/admin/audit-log/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/audit-log/page'
+// app/admin/posts/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/page'
+// app/admin/posts/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/loading'
+// app/admin/posts/new/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/new/page'
+// app/admin/posts/[id]/edit/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/[id]/edit/page'
+// app/admin/users/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/users/page'
+// app/admin/users/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/users/loading'
+```
+
+6) Generate Prisma clients (host + blog)
+```bash
+npm run db:generate
+```
+
+7) Run locally
+```bash
+npm run dev
+```
+
+Notes
+- `DATABASE_URL` = main site DB. `BLOG_DATABASE_URL` = blog package DB.
+- If styles don’t appear, ensure Tailwind `content` includes `node_modules/zemenay-blog`.
+- More details and alternatives are in `INTEGRATION.md`.
 
 ## �� API Endpoints
 

@@ -6,6 +6,100 @@ Hey Zemenay Community team! Here's how to add a blog button to your main website
 
 ---
 
+## Option 3: Install via npm and mount under /blog (Dedicated DB)
+
+This is the recommended setup for the main site [Zemenay Tech](https://www.zemenaytech.com/): install the package, mount the routes, and use a dedicated DB for the blog.
+
+### 1) Install
+```bash
+npm i zemenay-blog
+```
+
+### 2) Next.js config
+```js
+// next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  transpilePackages: ['zemenay-blog']
+}
+export default nextConfig
+```
+
+### 3) Tailwind config
+```js
+// tailwind.config.js
+module.exports = {
+  content: [
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './node_modules/zemenay-blog/**/*.{ts,tsx}'
+  ]
+}
+```
+
+### 4) Environment variables
+```env
+# Blog package database (dedicated)
+BLOG_DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
+
+# Main site DB (if used)
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
+
+# Public origin for links/SEO
+NEXT_PUBLIC_SITE_URL=https://www.zemenaytech.com
+
+# JWT secret for blog auth flows
+JWT_SECRET=your_strong_secret
+```
+
+### 5) Mount routes (create re-export files)
+```ts
+// app/blog/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/page'
+
+// app/blog/[slug]/page.tsx
+export { default } from 'zemenay-blog/next/app/blog/[slug]/page'
+
+// app/blog/loading.tsx
+export { default } from 'zemenay-blog/next/app/blog/loading'
+```
+
+Admin (optional):
+```ts
+export { default } from 'zemenay-blog/next/app/admin/layout'                // app/admin/layout.tsx
+export { default } from 'zemenay-blog/next/app/admin/page'                  // app/admin/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/dashboard/page'        // app/admin/dashboard/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/admins/page'           // app/admin/admins/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/admins/loading'        // app/admin/admins/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/comments/page'         // app/admin/comments/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/analytics/page'        // app/admin/analytics/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/audit-log/page'        // app/admin/audit-log/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/page'            // app/admin/posts/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/loading'         // app/admin/posts/loading.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/new/page'        // app/admin/posts/new/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/posts/[id]/edit/page'  // app/admin/posts/[id]/edit/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/users/page'            // app/admin/users/page.tsx
+export { default } from 'zemenay-blog/next/app/admin/users/loading'         // app/admin/users/loading.tsx
+```
+
+### 6) Generate Prisma clients
+```bash
+npm run db:generate
+```
+
+### 7) Run locally
+```bash
+npm run dev
+```
+
+### 8) Deploy
+- Deploy the main site. The blog pages are compiled as part of the build.
+- Set `BLOG_DATABASE_URL`, `JWT_SECRET`, and `NEXT_PUBLIC_SITE_URL` in the deployment settings.
+
+### Validate
+- Visit `/blog`, `/blog/<slug>`, and (optionally) `/admin`.
+- Confirm posts are served from the blog DB.
+
 ## Option 1: Simple Blog Header Button (Recommended)
 
 ### What You Need to Do
@@ -123,3 +217,6 @@ Once you add this button:
 ## Questions?
 
 If you need help integrating this or have questions, just let us know! The Team Dev is here to help.
+
+---
+
