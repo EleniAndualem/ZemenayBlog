@@ -2,7 +2,7 @@
 
 ## How to Integrate Zemenay Blog with Your Main Site
 
-Hey Zemenay Community team! Here's how to add a blog button to your main website that will redirect users to the Zemenay Blog.
+Hey Zemenay Community team! Here's how to integrate the Zemenay Blog to your main website.
 
 ---
 
