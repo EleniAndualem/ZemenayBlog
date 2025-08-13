@@ -108,7 +108,7 @@ const BlogHeader = () => {
 }
 ```
 
-> 💡 **Note:** Replace `'https://zemenay-blog.vercel.app'` with your actual deployed blog URL if you're running your own instance.
+> 💡 **Note:** This is the deployed blog URL. If you're running your own instance, replace it with your actual deployed blog URL.
 
 ## �� API Endpoints
 

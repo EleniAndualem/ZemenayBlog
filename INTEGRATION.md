@@ -16,7 +16,7 @@ Copy this component and add it to your main navigation:
 const BlogHeader = () => {
   const handleBlogClick = () => {
     // Redirects to the blog in the same tab
-    window.location.href = 'https://your-blog.vercel.app'
+    window.location.href = 'https://zemenay-blog.vercel.app'
   }
 
   return (
@@ -66,7 +66,7 @@ const BlogHeader = () => {
 
   const handleBlogClick = () => {
     // Redirects to the blog in the same tab using Next.js
-    router.push('https://your-blog.vercel.app')
+    router.push('https://zemenay-blog.vercel.app')
   }
 
   return (
@@ -88,7 +88,7 @@ Same as Option 1 - just add it to your navigation.
 
 ## What You Need to Change
 
-1. **Replace the URL**: Change `'https://your-blog.vercel.app'` to the actual blog URL once it's deployed
+1. **Replace the URL**: Change `'https://zemenay-blog.vercel.app'` to the actual blog URL once it's deployed
 2. **Style the button**: Add your own CSS classes to match your site's design
 
 ## Example Styling
@@ -122,4 +122,4 @@ Once you add this button:
 
 ## Questions?
 
-If you need help integrating this or have questions, just let us know! The blog team is here to help make this integration smooth and easy.
+If you need help integrating this or have questions, just let us know! The Team Dev is here to help.
