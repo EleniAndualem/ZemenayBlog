@@ -628,24 +628,6 @@ function BlogContent() {
 
                       <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
 
-                      {post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {post.tags.slice(0, 3).map((postTag) => (
-                            <span
-                              key={postTag.tag.id}
-                              className="px-2 py-1 text-xs bg-accent text-accent-foreground rounded-full"
-                            >
-                              #{postTag.tag.name}
-                            </span>
-                          ))}
-                          {post.tags.length > 3 && (
-                            <span className="px-2 py-1 text-xs bg-accent text-accent-foreground rounded-full">
-                              +{post.tags.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
