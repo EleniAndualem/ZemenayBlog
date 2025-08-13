@@ -4,9 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, TrendingUp, Users, BookOpen, Star, Eye, Heart, MessageSquare, Clock } from "lucide-react"
-import Header from "@/components/ui/Header"
-import Footer from "@/components/ui/Footer"
-import { useAuth } from "@/hooks/useAuth"
+import Header from "../components/ui/Header"
 
 interface Post {
   id: string
@@ -44,7 +42,6 @@ interface Post {
 export default function HomePage() {
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const { user } = useAuth()
 
   useEffect(() => {
     fetchFeaturedPosts()
@@ -248,36 +245,32 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Section */}
-      {!user && (
-        <section className="relative overflow-hidden py-16 bg-background dark:newsletter-gradient">
-          {/* Light mode subtle hero-like overlay */}
-          <div className="absolute inset-0 gradient-bg opacity-10 dark:hidden" />
-          <div className="container mx-auto px-4 relative">
-            <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Updated</h2>
-              <p className="text-xl text-muted-foreground dark:text-white/90 mb-8">
-                Get the latest articles and insights delivered to your inbox
-              </p>
-              <div className="max-w-md mx-auto">
-                <div className="bg-white/60 dark:bg-white/10 backdrop-blur rounded-xl p-2">
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none"
-                    />
-                    <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors dark:bg-white dark:text-blue-600 dark:hover:bg-gray-100">
-                      Subscribe
-                    </button>
-                  </div>
+      <section className="relative overflow-hidden py-16 bg-background dark:newsletter-gradient">
+        {/* Light mode subtle hero-like overlay */}
+        <div className="absolute inset-0 gradient-bg opacity-10 dark:hidden" />
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Updated</h2>
+            <p className="text-xl text-muted-foreground dark:text-white/90 mb-8">
+              Get the latest articles and insights delivered to your inbox
+            </p>
+            <div className="max-w-md mx-auto">
+              <div className="bg-white/60 dark:bg-white/10 backdrop-blur rounded-xl p-2">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none"
+                  />
+                  <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors dark:bg-white dark:text-blue-600 dark:hover:bg-gray-100">
+                    Subscribe
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-      )}
-
-      <Footer />
+        </div>
+      </section>
     </div>
   )
 }

@@ -2,6 +2,8 @@
 
 A full-featured blog platform built with Next.js, featuring a modern admin dashboard, role-based authentication, and seamless integration capabilities for the Zemenay community.
 
+> 🚀 **Ready for Integration:** The `zemenay-blog` package is now published to npm and ready to be integrated into the main Zemenay Tech website. See [Integration Guide](#-integration-for-the-main-site) below.
+
 ## 🚀 Features
 
 ### **Core Features**
@@ -120,10 +122,16 @@ For developers of the main site [Zemenay Tech](https://www.zemenaytech.com/), he
 
 ### Option A (recommended): Install via npm and mount under /blog
 
-1) Install the package
+1) Install the published package
 ```bash
-npm i zemenay-blog
+npm install zemenay-blog
+# or
+pnpm add zemenay-blog
+# or
+yarn add zemenay-blog
 ```
+
+> 📦 **Package Published:** The `zemenay-blog` package is now live on npm at [https://www.npmjs.com/package/zemenay-blog](https://www.npmjs.com/package/zemenay-blog)
 
 2) Next.js config (transpile the package)
 ```js
@@ -163,6 +171,9 @@ JWT_SECRET=your_strong_secret
 
 5) Mount the blog and admin routes (re-export files in your host app)
 ```ts
+// app/page.tsx (homepage)
+export { default } from 'zemenay-blog/next/app/page'
+
 // app/blog/page.tsx
 export { default } from 'zemenay-blog/next/app/blog/page'
 
@@ -171,6 +182,12 @@ export { default } from 'zemenay-blog/next/app/blog/[slug]/page'
 
 // app/blog/loading.tsx
 export { default } from 'zemenay-blog/next/app/blog/loading'
+
+// app/error.tsx (error handling)
+export { default } from 'zemenay-blog/next/app/error'
+
+// app/not-found.tsx (404 page)
+export { default } from 'zemenay-blog/next/app/not-found'
 ```
 
 Admin (optional):
@@ -281,6 +298,12 @@ Notes
 
 ### Current Status
 ✅ **Deployed and Live** - This blog is currently deployed on Vercel and accessible to the Zemenay community.
+
+### Package Status
+✅ **Published to npm** - The `zemenay-blog` package is now live on npm and ready for integration:
+- **Package URL:** [https://www.npmjs.com/package/zemenay-blog](https://www.npmjs.com/package/zemenay-blog)
+- **Version:** `0.1.0`
+- **Install Command:** `npm install zemenay-blog`
 
 ### For Local Development
 If you want to run this locally or deploy your own instance:

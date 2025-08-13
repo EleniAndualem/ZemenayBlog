@@ -3,8 +3,19 @@
   "version": "0.1.0",
   "private": false,
   "type": "module",
+  "main": "./next/app/page.tsx",
   "sideEffects": true,
   "description": "Zemenay Blog as a pluggable Next.js package (dedicated DB)",
+  "keywords": ["blog", "nextjs", "react", "typescript", "tailwind", "prisma", "zemenay"],
+  "author": "Team Dev - Zemenay Community",
+  "homepage": "https://github.com/EleniAndualem/ZemenayBlog#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EleniAndualem/ZemenayBlog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EleniAndualem/ZemenayBlog/issues"
+  },
   "license": "MIT",
   "peerDependencies": {
     "next": ">=15.0.0",
@@ -29,6 +40,7 @@
     "./prisma/*": "./prisma/*",
     "./styles/*": "./styles/*",
     "./scripts/*": "./scripts/*",
+    "./public/*": "./public/*",
     "./components/NewsletterForm": "./components/NewsletterForm.tsx",
     "./components/RichTextEditor": "./components/RichTextEditor.tsx",
     "./components/theme-provider": "./components/theme-provider.tsx",
@@ -43,7 +55,10 @@
     "./next/app/profile/page": "./next/app/profile/page.tsx",
     "./next/app/auth/login/page": "./next/app/auth/login/page.tsx",
     "./next/app/auth/register/page": "./next/app/auth/register/page.tsx",
-    "./next/app/api/newsletter/subscribe/route": "./next/app/api/newsletter/subscribe/route.ts"
+    "./next/app/api/newsletter/subscribe/route": "./next/app/api/newsletter/subscribe/route.ts",
+    "./next/app/page": "./next/app/page.tsx",
+    "./next/app/error": "./next/app/error.tsx",
+    "./next/app/not-found": "./next/app/not-found.tsx"
   }
 }
 

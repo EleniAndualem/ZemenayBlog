@@ -4,10 +4,9 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "zemenay-blog/hooks/useAuth"
+import { useAuth } from "../../../hooks/useAuth"
 import { User, Mail, Lock, Camera, Save, Eye, EyeOff } from "lucide-react"
-import Header from "@/components/ui/Header"
-import Footer from "@/components/ui/Footer"
+import Header from "../../../components/ui/Header"
 
 export default function ProfilePage() {
   const { user, updateProfile, loading } = useAuth()
@@ -48,29 +47,37 @@ export default function ProfilePage() {
 
       if (user.profileImage) {
         try {
+          // Helper to convert various image representations to an object URL or data URL
           const toImageUrl = (src: unknown): string | null => {
             try {
               if (!src) return null
+              // If it's already a URL or data URL string
               if (typeof src === 'string') {
                 if (src.startsWith('data:') || src.startsWith('http')) return src
+                // Assume base64 string without prefix
                 return `data:image/jpeg;base64,${src}`
               }
+              // File or Blob
               if (src instanceof File || src instanceof Blob) {
                 return URL.createObjectURL(src)
               }
+              // ArrayBuffer
               if (src instanceof ArrayBuffer) {
                 const blob = new Blob([src], { type: 'image/jpeg' })
                 return URL.createObjectURL(blob)
               }
+              // Uint8Array
               if (src instanceof Uint8Array) {
                 const blob = new Blob([src], { type: 'image/jpeg' })
                 return URL.createObjectURL(blob)
               }
+              // number[]
               if (Array.isArray(src)) {
                 const arr = new Uint8Array(src as number[])
                 const blob = new Blob([arr], { type: 'image/jpeg' })
                 return URL.createObjectURL(blob)
               }
+              // Prisma Bytes serialization or generic object with data/buffer
               if (typeof src === 'object' && src !== null) {
                 const anySrc = src as any
                 if (anySrc.type === 'Buffer' && Array.isArray(anySrc.data)) {
@@ -90,41 +97,41 @@ export default function ProfilePage() {
               }
             } catch (e) {
               console.warn('Failed to convert image source to URL', e)
+              return null
             }
             return null
           }
 
           const imageUrl = toImageUrl(user.profileImage)
-          setImagePreview(imageUrl)
+          if (imageUrl) {
+            setImagePreview(imageUrl)
+          }
         } catch (error) {
-          console.error("Error processing profile image:", error)
-          console.error("Profile image data:", user.profileImage)
-          setImagePreview(null)
+          console.error('Error setting profile image preview:', error)
         }
       }
     }
   }, [user, loading, router])
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image size must be less than 5MB")
-      return
+    if (file) {
+      setProfileImage(file)
+      const reader = new FileReader()
+      reader.onload = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
+  }
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file")
-      return
-    }
-
-    setProfileImage(file)
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string)
-    }
-    reader.readAsDataURL(file)
+  const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
+    setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,86 +140,53 @@ export default function ProfilePage() {
     setError("")
     setSuccess("")
 
-    if (formData.newPassword || formData.confirmPassword) {
-      if (!formData.currentPassword) {
-        setError("Current password is required to set a new password")
-        setSaving(false)
-        return
-      }
-      if (!formData.newPassword) {
-        setError("New password is required")
-        setSaving(false)
-        return
-      }
-      if (!formData.confirmPassword) {
-        setError("Please confirm your new password")
-        setSaving(false)
-        return
-      }
-      if (formData.newPassword !== formData.confirmPassword) {
-        setError("New passwords do not match")
-        setSaving(false)
-        return
-      }
-      if (formData.newPassword.length < 8) {
-        setError("New password must be at least 8 characters")
-        setSaving(false)
-        return
-      }
-      if (formData.newPassword === formData.currentPassword) {
-        setError("New password must be different from current password")
-        setSaving(false)
-        return
-      }
-    }
-
     try {
-      const updateData = new FormData()
+      // Validate passwords if changing
+      if (formData.newPassword || formData.confirmPassword) {
+        if (!formData.currentPassword) {
+          setError("Current password is required to change password")
+          setSaving(false)
+          return
+        }
+        if (formData.newPassword !== formData.confirmPassword) {
+          setError("New passwords don't match")
+          setSaving(false)
+          return
+        }
+        if (formData.newPassword.length < 6) {
+          setError("New password must be at least 6 characters")
+          setSaving(false)
+          return
+        }
+      }
 
-      if (formData.fullName !== user?.fullName) {
-        updateData.append("fullName", formData.fullName)
+      const updateData: any = {
+        fullName: formData.fullName,
+        email: formData.email,
       }
-      if (formData.email !== user?.email) {
-        updateData.append("email", formData.email)
-      }
+
       if (formData.newPassword) {
-        updateData.append("currentPassword", formData.currentPassword)
-        updateData.append("newPassword", formData.newPassword)
-      }
-      if (profileImage) {
-        updateData.append("profileImage", profileImage)
+        updateData.currentPassword = formData.currentPassword
+        updateData.newPassword = formData.newPassword
       }
 
-      const response = await fetch("/api/auth/update-profile", {
-        method: "POST",
-        body: updateData,
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
+      const success = await updateProfile(updateData)
+      
+      if (success) {
         setSuccess("Profile updated successfully!")
-        setFormData((prev) => ({
+        // Clear password fields
+        setFormData(prev => ({
           ...prev,
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         }))
         setProfileImage(null)
-
-        if (updateProfile) {
-          await updateProfile({
-            fullName: data.fullName,
-            email: data.email,
-            profileImage: data.profileImage ?? null,
-            darkMode: data.darkMode,
-          })
-        }
       } else {
-        setError(data.error || "Failed to update profile")
+        setError("Failed to update profile. Please try again.")
       }
-    } catch (error) {
-      setError("An error occurred while updating your profile")
+    } catch (error: any) {
+      setError(error.message || "An error occurred while updating profile")
     } finally {
       setSaving(false)
     }
@@ -220,8 +194,20 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
+              <div className="space-y-6">
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -233,54 +219,38 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
-      <div className="container mx-auto px-4 py-12">
+      
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Update your personal information and account settings
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                  <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
-                </div>
-              )}
-
-              {success && (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                  <p className="text-green-600 dark:text-green-400 text-sm">{success}</p>
-                </div>
-              )}
-
-              {/* Profile Image */}
+          <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Image Section */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Profile Image</h2>
               <div className="flex items-center space-x-6">
                 <div className="relative">
-                  <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                  <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200">
                     {imagePreview ? (
                       <img
-                        src={imagePreview || "/placeholder.svg"}
+                        src={imagePreview}
                         alt="Profile"
-                        className="h-full w-full object-cover"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center">
-                        <User className="h-12 w-12 text-gray-400" />
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-12 h-12 text-gray-400" />
                       </div>
                     )}
                   </div>
                   <label
-                    htmlFor="profileImage"
-                    className="absolute bottom-0 right-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors"
+                    htmlFor="profile-image"
+                    className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors"
                   >
-                    <Camera className="h-4 w-4 text-white" />
+                    <Camera className="w-4 h-4 text-white" />
                   </label>
                   <input
-                    id="profileImage"
+                    id="profile-image"
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
@@ -288,155 +258,172 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">{user.fullName}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user.role.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Upload a new profile image. Recommended size: 400x400 pixels.
+                  </p>
                 </div>
               </div>
+            </div>
 
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Personal Information */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Personal Information</h2>
+              
+              <div className="space-y-4">
                 <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="fullName" className="block text-sm font-medium mb-2">
                     Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
-                      id="fullName"
                       type="text"
+                      id="fullName"
+                      name="fullName"
                       value={formData.fullName}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium mb-2">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
-                      id="email"
                       type="email"
+                      id="email"
+                      name="email"
                       value={formData.email}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
                       required
                     />
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Password Change */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Change Password</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="currentPassword"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            {/* Password Change */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Change Password</h2>
+              <p className="text-sm text-muted-foreground">
+                Leave blank if you don't want to change your password.
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="currentPassword" className="block text-sm font-medium mb-2">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type={showPasswords.current ? "text" : "password"}
+                      id="currentPassword"
+                      name="currentPassword"
+                      value={formData.currentPassword}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-10 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('current')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      Current Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        id="currentPassword"
-                        type={showPasswords.current ? "text" : "password"}
-                        value={formData.currentPassword}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, currentPassword: e.target.value }))}
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Enter current password to change"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords((prev) => ({ ...prev, current: !prev.current }))}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showPasswords.current ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    </div>
+                      {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="newPassword"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >
-                        New Password
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          id="newPassword"
-                          type={showPasswords.new ? "text" : "password"}
-                          value={formData.newPassword}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, newPassword: e.target.value }))}
-                          className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="Enter new password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords((prev) => ({ ...prev, new: !prev.new }))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPasswords.new ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      </div>
-                    </div>
+                <div>
+                  <label htmlFor="newPassword" className="block text-sm font-medium mb-2">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type={showPasswords.new ? "text" : "password"}
+                      id="newPassword"
+                      name="newPassword"
+                      value={formData.newPassword}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-10 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('new')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
 
-                    <div>
-                      <label
-                        htmlFor="confirmPassword"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >
-                        Confirm New Password
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          id="confirmPassword"
-                          type={showPasswords.confirm ? "text" : "password"}
-                          value={formData.confirmPassword}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-                          className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="Confirm new password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords((prev) => ({ ...prev, confirm: !prev.confirm }))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPasswords.confirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      </div>
-                    </div>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type={showPasswords.confirm ? "text" : "password"}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-10 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('confirm')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Save className="h-5 w-5" />
-                  <span>{saving ? "Saving..." : "Save Changes"}</span>
-                </button>
+            {/* Error and Success Messages */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-800">{error}</p>
               </div>
-            </form>
-          </div>
+            )}
+
+            {success && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-green-800">{success}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </button>
+          </form>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

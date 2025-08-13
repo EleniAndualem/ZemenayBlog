@@ -2,6 +2,8 @@
 
 A complete, self-contained blog package for Next.js applications with dedicated database support.
 
+> 📦 **Published Package:** This package is now live on npm and ready for production use!
+
 ## Features
 
 - **Complete Blog System**: Home page, blog listing, individual posts, categories, tags
@@ -17,7 +19,11 @@ A complete, self-contained blog package for Next.js applications with dedicated 
 npm install zemenay-blog
 # or
 pnpm add zemenay-blog
+# or
+yarn add zemenay-blog
 ```
+
+> 📦 **Package Published:** This package is now live on npm at [https://www.npmjs.com/package/zemenay-blog](https://www.npmjs.com/package/zemenay-blog)
 
 ## Quick Start
 
@@ -102,6 +108,19 @@ The package provides these API endpoints:
 - `/api/admin/*` - Admin endpoints
 - `/api/newsletter/subscribe` - Newsletter subscription
 
+## Pages
+
+The package includes these pages:
+
+- `/` - Homepage with featured posts and stats
+- `/blog` - Blog listing page
+- `/blog/[slug]` - Individual blog post
+- `/categories` - Category listing
+- `/profile` - User profile management
+- `/auth/login` - User login
+- `/auth/register` - User registration
+- `/admin/*` - Admin dashboard pages
+
 ## Components
 
 ### UI Components
@@ -156,6 +175,20 @@ import { PrismaClient } from 'zemenay-blog/prisma/generated/client'
 
 const prisma = new PrismaClient()
 // Use for database operations
+```
+
+### Core Pages
+Mount these core pages in your app:
+
+```ts
+// app/page.tsx (homepage)
+export { default } from 'zemenay-blog/next/app/page'
+
+// app/error.tsx (error handling)
+export { default } from 'zemenay-blog/next/app/error'
+
+// app/not-found.tsx (404 page)
+export { default } from 'zemenay-blog/next/app/not-found'
 ```
 
 ### Additional Pages

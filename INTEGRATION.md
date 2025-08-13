@@ -4,16 +4,33 @@
 
 Hey Zemenay Community team! Here's how to integrate the Zemenay Blog to your main website.
 
+> 📦 **Package Status:** The `zemenay-blog` package is now published to npm and ready for integration!
+
 ---
 
 ## Option 1: Install via npm and mount under /blog (Dedicated DB)
 
 This is the recommended setup for the main site [Zemenay Tech](https://www.zemenaytech.com/): install the package, mount the routes, and use a dedicated DB for the blog.
 
+**What's included in the package:**
+- ✅ Complete blog system (pages, components, API routes)
+- ✅ Admin dashboard with full CRUD operations
+- ✅ Authentication system with role-based access
+- ✅ Database schema and Prisma client
+- ✅ Styling and UI components
+- ✅ Utility scripts for database operations
+- ✅ Public assets and images
+
 ### 1) Install
 ```bash
-npm i zemenay-blog
+npm install zemenay-blog
+# or
+pnpm add zemenay-blog
+# or
+yarn add zemenay-blog
 ```
+
+> 📦 **Package Published:** The `zemenay-blog` package is now live on npm at [https://www.npmjs.com/package/zemenay-blog](https://www.npmjs.com/package/zemenay-blog)
 
 ### 2) Next.js config
 ```js
@@ -54,6 +71,9 @@ JWT_SECRET=your_strong_secret
 
 ### 5) Mount routes (create re-export files)
 ```ts
+// app/page.tsx (homepage)
+export { default } from 'zemenay-blog/next/app/page'
+
 // app/blog/page.tsx
 export { default } from 'zemenay-blog/next/app/blog/page'
 
@@ -62,6 +82,12 @@ export { default } from 'zemenay-blog/next/app/blog/[slug]/page'
 
 // app/blog/loading.tsx
 export { default } from 'zemenay-blog/next/app/blog/loading'
+
+// app/error.tsx (error handling)
+export { default } from 'zemenay-blog/next/app/error'
+
+// app/not-found.tsx (404 page)
+export { default } from 'zemenay-blog/next/app/not-found'
 ```
 
 ### 5b) Wire additional package pages (optional)
