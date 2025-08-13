@@ -126,15 +126,15 @@ module.exports = {
 4) Environment variables
 ```env
 # Blog package database (dedicated)
-BLOG_DATABASE_URL=postgresql://neondb_owner:npg_hq6TEblL4Avy@ep-lucky-feather-a2wnz2qf-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+BLOG_DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
 
-# Main site database (if your app also uses Prisma)
-DATABASE_URL=postgresql://neondb_owner:npg_owJk2lbuYAd1@ep-autumn-night-a2f5aa1a-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+# Main site DB (if used)
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB
 
-# Used by links and SEO
+# Public origin for links/SEO
 NEXT_PUBLIC_SITE_URL=https://www.zemenaytech.com
 
-# For JWT in blog auth flows
+# JWT secret for blog auth flows
 JWT_SECRET=your_strong_secret
 ```
 
