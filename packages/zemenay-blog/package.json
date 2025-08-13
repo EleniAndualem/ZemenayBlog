@@ -1,18 +1,26 @@
 {
   "name": "zemenay-blog",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "main": "./components/index.ts",
   "types": "./components/index.ts",
   "sideEffects": true,
   "description": "Zemenay Blog as a pluggable Next.js package (dedicated DB)",
-  "keywords": ["blog", "nextjs", "react", "typescript", "tailwind", "prisma", "zemenay"],
+  "keywords": [
+    "blog",
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwind",
+    "prisma",
+    "zemenay"
+  ],
   "author": "Team Dev - Zemenay Community",
   "homepage": "https://github.com/EleniAndualem/ZemenayBlog#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/EleniAndualem/ZemenayBlog.git"
+    "url": "git+https://github.com/EleniAndualem/ZemenayBlog.git"
   },
   "bugs": {
     "url": "https://github.com/EleniAndualem/ZemenayBlog/issues"
@@ -97,4 +105,3 @@
     "./next/app/not-found": "./next/app/not-found.tsx"
   }
 }
-
