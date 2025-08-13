@@ -64,6 +64,49 @@ export { default } from 'zemenay-blog/next/app/blog/[slug]/page'
 export { default } from 'zemenay-blog/next/app/blog/loading'
 ```
 
+### 5b) Wire additional package pages (optional)
+```ts
+// app/categories/page.tsx
+export { default } from 'zemenay-blog/next/app/categories/page'
+
+// app/profile/page.tsx
+export { default } from 'zemenay-blog/next/app/profile/page'
+
+// app/auth/login/page.tsx
+export { default } from 'zemenay-blog/next/app/auth/login/page'
+
+// app/auth/register/page.tsx
+export { default } from 'zemenay-blog/next/app/auth/register/page'
+
+// app/api/newsletter/subscribe/route.ts
+export { POST } from 'zemenay-blog/next/app/api/newsletter/subscribe/route'
+```
+
+### 5c) Use package styles and scripts (optional)
+```ts
+// Import package styles in your global CSS
+@import 'zemenay-blog/styles/globals.css';
+
+// Or import in your layout.tsx
+import 'zemenay-blog/styles/globals.css'
+```
+
+```bash
+# Run package scripts for database operations
+node node_modules/zemenay-blog/scripts/test-db-connection.js
+node node_modules/zemenay-blog/scripts/seed-categories.js
+node node_modules/zemenay-blog/scripts/check-posts.js
+```
+
+### 5d) Access package utilities
+```ts
+// Import Prisma client from package
+import { PrismaClient } from 'zemenay-blog/prisma/generated/client'
+
+// Use in your API routes or server components
+const prisma = new PrismaClient()
+```
+
 Admin (optional):
 ```ts
 export { default } from 'zemenay-blog/next/app/admin/layout'                // app/admin/layout.tsx

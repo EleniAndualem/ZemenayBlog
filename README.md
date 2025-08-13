@@ -38,18 +38,41 @@ A full-featured blog platform built with Next.js, featuring a modern admin dashb
 ## 📁 Project Structure
 
 ```
-zemenay-blog/
-├── app/                    # Next.js App Router
-│   ├── admin/             # Admin dashboard
-│   ├── api/               # API routes (CORS enabled)
-│   ├── auth/              # Authentication
-│   ├── blog/              # Public blog
-│   └── profile/           # User profiles
-├── components/            # Reusable components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utilities
-├── prisma/               # Database schema
-└── INTEGRATION.md        # Integration guide
+.
+├── app/                                  # Local dev host (for running the blog package locally)
+│   ├── blog/                             # Can re-export package pages during local dev
+│   └── admin/                            # Optional admin re-exports during local dev
+├── packages/
+│   └── zemenay-blog/                     # The installable blog package (published/consumed by main site)
+│       ├── package.json
+│       ├── [README.md](./packages/zemenay-blog/README.md)
+│       ├── .npmignore
+│       ├── prisma/
+│       │   ├── blog.schema.prisma        # Dedicated blog schema (uses BLOG_DATABASE_URL)
+│       │   └── generated/client/         # Prisma client (generated)
+│       ├── next/
+│       │   ├── app/
+│       │   │   ├── blog/                 # Public blog pages
+│       │   │   ├── admin/                # Admin dashboard pages
+│       │   │   ├── api/                  # Package API re-exports (select endpoints)
+│       │   │   ├── robots.ts
+│       │   │   └── sitemap.ts
+│       │   └── lib/prisma.ts             # Package Prisma client shim (reads BLOG_DATABASE_URL)
+│       ├── components/                   # Package components (e.g., Header)
+│       ├── hooks/                        # Package hooks (e.g., useAuth)
+│       ├── lib/                          # Package utilities
+│       ├── ui/                           # UI entrypoints
+│       ├── auth/                         # Auth entrypoints
+│       └── examples/host-app-stubs/      # Ready-to-copy re-export files for host app
+├── scripts/                              # Minimal utilities
+│   ├── test-db-connection.js             # Verify DB connection
+│   ├── seed-categories.js                # Seed core categories
+│   └── check-posts.js                    # List posts quickly
+├── [INTEGRATION.md](./INTEGRATION.md)    # Main-site integration guide
+├── next.config.mjs
+├── tailwind.config.js
+├── package.json                          # Workspaces enabled (packages/*)
+└── tsconfig.json
 ```
 
 ## 🚀 Quick Start
@@ -63,8 +86,8 @@ zemenay-blog/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd zemenay-blog
+   git clone https://github.com/EleniAndualem/ZemenayBlog.git
+   cd ZemenayBlog
    ```
 
 2. **Install dependencies**
@@ -182,6 +205,49 @@ export { default } from 'zemenay-blog/next/app/admin/users/page'
 export { default } from 'zemenay-blog/next/app/admin/users/loading'
 ```
 
+### 5b) Wire additional package pages (optional)
+```ts
+// app/categories/page.tsx
+export { default } from 'zemenay-blog/next/app/categories/page'
+
+// app/profile/page.tsx
+export { default } from 'zemenay-blog/next/app/profile/page'
+
+// app/auth/login/page.tsx
+export { default } from 'zemenay-blog/next/app/auth/login/page'
+
+// app/auth/register/page.tsx
+export { default } from 'zemenay-blog/next/app/auth/register/page'
+
+// app/api/newsletter/subscribe/route.ts
+export { POST } from 'zemenay-blog/next/app/api/newsletter/subscribe/route'
+```
+
+### 5c) Use package styles and scripts (optional)
+```ts
+// Import package styles in your global CSS
+@import 'zemenay-blog/styles/globals.css';
+
+// Or import in your layout.tsx
+import 'zemenay-blog/styles/globals.css'
+```
+
+```bash
+# Run package scripts for database operations
+node node_modules/zemenay-blog/scripts/test-db-connection.js
+node node_modules/zemenay-blog/scripts/seed-categories.js
+node node_modules/zemenay-blog/scripts/check-posts.js
+```
+
+### 5d) Access package utilities
+```ts
+// Import Prisma client from package
+import { PrismaClient } from 'zemenay-blog/prisma/generated/client'
+
+// Use in your API routes or server components
+const prisma = new PrismaClient()
+```
+
 6) Generate Prisma clients (host + blog)
 ```bash
 npm run db:generate
@@ -195,7 +261,7 @@ npm run dev
 Notes
 - `DATABASE_URL` = main site DB. `BLOG_DATABASE_URL` = blog package DB.
 - If styles don’t appear, ensure Tailwind `content` includes `node_modules/zemenay-blog`.
-- More details and alternatives are in `INTEGRATION.md`.
+- More details and alternatives are in [INTEGRATION.md](./INTEGRATION.md).
 
 ## �� API Endpoints
 
@@ -238,9 +304,14 @@ After seeding:
 - **Admin:** `admin@example.com` / `password123`
 - **User:** `user@example.com` / `password123`
 
+## 📚 Documentation
+
+- **[INTEGRATION.md](./INTEGRATION.md)** - Complete integration guide for main site developers
+- **[Package README](./packages/zemenay-blog/README.md)** - Detailed package documentation
+
 ## 🤝 Support
 
-For integration help, refer to `INTEGRATION.md` or contact the development team.
+For integration help, refer to [INTEGRATION.md](./INTEGRATION.md) or contact the development team.
 
 ## 🌐 Live Demo
 

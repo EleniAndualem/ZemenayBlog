@@ -100,6 +100,7 @@ The package provides these API endpoints:
 - `/api/comments` - Comment system
 - `/api/auth/*` - Authentication endpoints
 - `/api/admin/*` - Admin endpoints
+- `/api/newsletter/subscribe` - Newsletter subscription
 
 ## Components
 
@@ -112,6 +113,9 @@ The package provides these API endpoints:
 - `BlogListSkeleton` - Loading states
 - `ErrorBoundary` - Error handling
 - `LoadingSkeleton` - Skeleton loaders
+- `NewsletterForm` - Newsletter subscription form
+- `RichTextEditor` - Rich text editing component
+- `ThemeProvider` - Theme management provider
 
 ## Hooks
 
@@ -127,6 +131,50 @@ The package uses Tailwind CSS with custom CSS variables for theming. Include the
 @import 'zemenay-blog/styles/globals.css';
 ```
 
+## Scripts
+
+The package includes utility scripts for database operations:
+
+```bash
+# Test database connection
+node node_modules/zemenay-blog/scripts/test-db-connection.js
+
+# Seed default categories
+node node_modules/zemenay-blog/scripts/seed-categories.js
+
+# Check existing posts
+node node_modules/zemenay-blog/scripts/check-posts.js
+```
+
+## Utilities
+
+### Prisma Client
+Access the package's Prisma client directly:
+
+```ts
+import { PrismaClient } from 'zemenay-blog/prisma/generated/client'
+
+const prisma = new PrismaClient()
+// Use for database operations
+```
+
+### Additional Pages
+Mount these optional pages in your app:
+
+```ts
+// app/categories/page.tsx
+export { default } from 'zemenay-blog/next/app/categories/page'
+
+// app/profile/page.tsx
+export { default } from 'zemenay-blog/next/app/profile/page'
+
+// app/auth/login/page.tsx
+export { default } from 'zemenay-blog/next/app/auth/login/page'
+
+// app/auth/register/page.tsx
+export { default } from 'zemenay-blog/next/app/auth/register/page'
+```
+
 ## Customization
 
 ### Theme Colors
@@ -138,6 +186,22 @@ Override CSS variables in your global CSS:
   --primary-foreground: 255 255 255;
   --accent: 241 245 249;
   --accent-foreground: 15 23 42;
+}
+```
+
+### Import Styles
+You can also import the package styles in your layout:
+
+```tsx
+// app/layout.tsx
+import 'zemenay-blog/styles/globals.css'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  )
 }
 ```
 

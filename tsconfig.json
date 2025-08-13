@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "target": "ES6",
@@ -19,7 +20,22 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@ui/*": ["./components/ui/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@lib/*": ["./lib/*"],
+      "@styles/*": ["./styles/*"],
+      "@public/*": ["./public/*"],
+      "@scripts/*": ["./scripts/*"],
+      "@prisma/*": ["./prisma/*"],
+      "@api/*": ["./app/api/*"],
+      "@auth/*": ["./app/auth/*"],
+      "@profile/*": ["./app/profile/*"],
+      "@categories/*": ["./app/categories/*"],
+      "@NewsletterForm": ["./components/NewsletterForm"],
+      "@RichTextEditor": ["./components/RichTextEditor"],
+      "@theme-provider": ["./components/theme-provider"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

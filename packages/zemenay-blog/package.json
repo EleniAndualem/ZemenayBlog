@@ -26,7 +26,24 @@
     "./lib/*": "./lib/*",
     "./ui/*": "./ui/*",
     "./auth/*": "./auth/*",
-    "./prisma/*": "./prisma/*"
+    "./prisma/*": "./prisma/*",
+    "./styles/*": "./styles/*",
+    "./scripts/*": "./scripts/*",
+    "./components/NewsletterForm": "./components/NewsletterForm.tsx",
+    "./components/RichTextEditor": "./components/RichTextEditor.tsx",
+    "./components/theme-provider": "./components/theme-provider.tsx",
+    "./next/app/api/categories/route": "./next/app/api/categories/route.ts",
+    "./next/app/api/tags/route": "./next/app/api/tags/route.ts",
+    "./next/app/api/posts/route": "./next/app/api/posts/route.ts",
+    "./next/app/api/posts/[slug]/route": "./next/app/api/posts/[slug]/route.ts",
+    "./next/app/api/posts/[slug]/comments/route": "./next/app/api/posts/[slug]/comments/route.ts",
+    "./next/app/api/posts/[slug]/like/route": "./next/app/api/posts/[slug]/like/route.ts",
+    "./next/app/api/posts/[slug]/view/route": "./next/app/api/posts/[slug]/view/route.ts",
+    "./next/app/categories/page": "./next/app/categories/page.tsx",
+    "./next/app/profile/page": "./next/app/profile/page.tsx",
+    "./next/app/auth/login/page": "./next/app/auth/login/page.tsx",
+    "./next/app/auth/register/page": "./next/app/auth/register/page.tsx",
+    "./next/app/api/newsletter/subscribe/route": "./next/app/api/newsletter/subscribe/route.ts"
   }
 }
 
