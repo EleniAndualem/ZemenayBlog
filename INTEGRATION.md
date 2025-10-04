@@ -6,7 +6,7 @@ Hey Zemenay Community team! Here's how to integrate the Zemenay Blog to your mai
 
 > 📦 **Package Status:** The `zemenay-blog` package is now published to npm and ready for integration!
 
-> 🎉 **Latest Version:** `zemenay-blog@0.1.1` - Complete UI and blog component library with 55+ components!
+> 🎉 **Latest Version:** `zemenay-blog@0.1.2` - Complete UI and blog component library with 55+ components!
 
 ---
 
