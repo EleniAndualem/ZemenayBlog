@@ -4,7 +4,7 @@ A full-featured blog platform built with Next.js, featuring a modern admin dashb
 
 > 🚀 **Ready for Integration:** The `zemenay-blog` package is now published to npm and ready to be integrated into the main Zemenay Tech website. See [Integration Guide](#-integration-for-the-main-site) below.
 
-> 📦 **Latest Version:** `zemenay-blog@0.1.1` - Now includes complete UI and blog component library with 55+ components, 5 hooks, and utility functions!
+> 📦 **Latest Version:** `zemenay-blog@0.1.2` - Now includes complete UI and blog component library with 55+ components, 5 hooks, and utility functions!
 
 ## 🚀 Features
 
@@ -344,6 +344,33 @@ After seeding:
 - **User:** `user@example.com` / `password123`
 
 ## 📋 Changelog
+What's New in Version 0.1.2:
+�� Added Files:
+✅ lib/ Directory: utils.ts, auth.ts, prisma.ts, index.ts
+✅ hooks/ Directory: useTheme.tsx, useBlogPosts.ts, use-toast.ts, use-mobile.tsx, index.ts
+✅ styles/ Directory: globals.css, index.css
+✅ Configuration: tailwind.config.js
+🔧 New Dependencies:
+✅ bcryptjs - Password hashing
+✅ jsonwebtoken - JWT token handling
+✅ cookies-next - Cookie management
+✅ tailwindcss-animate - Tailwind animations
+�� New Exports:
+✅ ./hooks - All custom hooks
+✅ ./lib - All utility functions
+✅ ./styles - CSS styles
+✅ ./styles/globals.css - Direct CSS import
+�� Package Contents:
+170 files included in the package
+9.2 MB package size
+23.8 MB unpacked size
+📊 Package Statistics:
+✅ 55+ UI Components (Button, Card, Dialog, Form, etc.)
+✅ 5 Blog Components (CommentSection, LikeButton, Pagination, etc.)
+✅ 5 Custom Hooks (useAuth, useTheme, useBlogPosts, useToast, useMobile)
+✅ Complete Utility Functions (cn, formatDate, generateSlug, auth helpers)
+✅ Full CSS Styles with Tailwind configuration
+✅ All Next.js pages and API routes
 
 ### Version 0.1.1 (Latest)
 - ✅ **Complete UI Component Library** - Added 55+ UI components (Button, Card, Dialog, Form, etc.)
