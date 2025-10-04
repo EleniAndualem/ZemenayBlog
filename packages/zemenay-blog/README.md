@@ -144,6 +144,35 @@ import {
 } from 'zemenay-blog/components';
 ```
 
+### Hooks
+
+```tsx
+import { 
+  useAuth, 
+  useTheme, 
+  useBlogPosts, 
+  useToast, 
+  useMobile 
+} from 'zemenay-blog/components';
+
+// Or import directly
+import { useAuth } from 'zemenay-blog/hooks';
+```
+
+### Utilities
+
+```tsx
+import { 
+  cn, 
+  formatDate, 
+  generateSlug,
+  // ... and other utilities
+} from 'zemenay-blog/components';
+
+// Or import directly
+import { cn } from 'zemenay-blog/lib';
+```
+
 ### Available UI Components
 
 - **Layout**: Header, Footer, Sidebar, NavigationMenu
@@ -208,12 +237,28 @@ The package includes these pages:
 - `useAuth` - Authentication state and methods
 - `useTheme` - Theme management
 - `useBlogPosts` - Blog post data
+- `useToast` - Toast notifications
+- `useMobile` - Mobile detection
+
+## Utilities
+
+- `cn` - Class name utility (clsx + tailwind-merge)
+- `formatDate` - Date formatting utilities
+- `generateSlug` - URL slug generation
+- `hashPassword` - Password hashing
+- `verifyPassword` - Password verification
+- `generateToken` - JWT token generation
+- `verifyToken` - JWT token verification
 
 ## Styling
 
 The package uses Tailwind CSS with custom CSS variables for theming. Include the package's CSS in your global styles:
 
 ```css
+/* Import all styles */
+@import 'zemenay-blog/styles';
+
+/* Or import specific styles */
 @import 'zemenay-blog/styles/globals.css';
 ```
 

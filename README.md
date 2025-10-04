@@ -4,7 +4,7 @@ A full-featured blog platform built with Next.js, featuring a modern admin dashb
 
 > 🚀 **Ready for Integration:** The `zemenay-blog` package is now published to npm and ready to be integrated into the main Zemenay Tech website. See [Integration Guide](#-integration-for-the-main-site) below.
 
-> 📦 **Latest Version:** `zemenay-blog@0.1.1` - Now includes complete UI and blog component library with 55+ components!
+> 📦 **Latest Version:** `zemenay-blog@0.1.1` - Now includes complete UI and blog component library with 55+ components, 5 hooks, and utility functions!
 
 ## 🚀 Features
 
@@ -248,6 +248,9 @@ export { POST } from 'zemenay-blog/next/app/api/newsletter/subscribe/route'
 ### 5d) Use package styles and scripts (optional)
 ```ts
 // Import package styles in your global CSS
+@import 'zemenay-blog/styles';
+
+// Or import specific styles
 @import 'zemenay-blog/styles/globals.css';
 
 // Or import in your layout.tsx
@@ -261,10 +264,16 @@ node node_modules/zemenay-blog/scripts/seed-categories.js
 node node_modules/zemenay-blog/scripts/check-posts.js
 ```
 
-### 5e) Access package utilities
+### 5e) Access package utilities and hooks
 ```ts
 // Import Prisma client from package
 import { PrismaClient } from 'zemenay-blog/prisma/generated/client'
+
+// Import utilities
+import { cn, formatDate, generateSlug } from 'zemenay-blog/lib'
+
+// Import hooks
+import { useAuth, useTheme, useBlogPosts } from 'zemenay-blog/hooks'
 
 // Use in your API routes or server components
 const prisma = new PrismaClient()
@@ -339,8 +348,11 @@ After seeding:
 ### Version 0.1.1 (Latest)
 - ✅ **Complete UI Component Library** - Added 55+ UI components (Button, Card, Dialog, Form, etc.)
 - ✅ **Blog Component Library** - Added 5 blog-specific components (CommentSection, LikeButton, Pagination, etc.)
-- ✅ **Enhanced Package Exports** - Proper index files for easy component imports
-- ✅ **Updated Dependencies** - Added all necessary Radix UI and utility dependencies
+- ✅ **Hooks Library** - Added 5 custom hooks (useAuth, useTheme, useBlogPosts, useToast, useMobile)
+- ✅ **Utility Functions** - Added comprehensive utility functions (cn, formatDate, generateSlug, auth helpers)
+- ✅ **CSS Styles** - Added complete CSS with Tailwind configuration
+- ✅ **Enhanced Package Exports** - Proper index files for easy imports
+- ✅ **Updated Dependencies** - Added all necessary dependencies including auth and styling
 - ✅ **Comprehensive Documentation** - Complete mount points reference and integration guides
 - ✅ **Ready for Production** - Full component library ready for npm consumption
 

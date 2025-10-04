@@ -112,7 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (data: { 
     fullName?: string; 
     email?: string;
-    profileImage?: Buffer | File;
+    // Accept broad image representations to avoid Buffer usage client-side
+    profileImage?: string | File | Blob | ArrayBuffer | Uint8Array | number[] | { type?: string; data?: number[]; buffer?: ArrayBuffer } | null;
     darkMode?: boolean;
   }) => {
     try {
